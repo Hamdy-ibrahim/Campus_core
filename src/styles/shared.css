@@ -1,0 +1,1126 @@
+/* ===========================
+   LOGIN PAGE
+=========================== */
+
+.login-page{
+
+    display:flex;
+    min-height:100vh;
+
+}
+
+/* LEFT SIDE */
+
+.login-left{
+
+    flex:1;
+
+    background:linear-gradient(135deg,#2563eb,#090570);
+
+    color:white;
+
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+
+    padding:80px;
+
+}
+
+.login-left h1{
+
+    font-size:42px;
+    margin-bottom:20px;
+
+}
+
+.login-left h2{
+
+    font-size:52px;
+    line-height:1.2;
+    margin-bottom:25px;
+
+}
+
+.login-left p{
+
+    font-size:18px;
+    line-height:1.8;
+    max-width:500px;
+    opacity:.95;
+
+}
+
+.login-left img{
+
+    width:100%;
+    max-width:450px;
+
+    margin-top:50px;
+
+}
+
+/* RIGHT SIDE */
+
+.login-right{
+
+    flex:1;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    background:#f8fafc;
+
+}
+
+.login-card{
+
+    background:white;
+
+    width:430px;
+
+    padding:45px;
+
+    border-radius:20px;
+
+    box-shadow:0 20px 50px rgba(0,0,0,.12);
+
+    animation:fadeUp .8s;
+
+}
+
+.login-card h2{
+
+    font-size:34px;
+
+    margin-bottom:10px;
+
+}
+
+.login-card p{
+
+    color:#6b7280;
+
+    margin-bottom:25px;
+
+}
+
+/* LABELS */
+
+.login-card label{
+
+    display:block;
+
+    margin-top:18px;
+
+    margin-bottom:8px;
+
+    font-weight:600;
+
+}
+
+/* INPUT */
+
+.login-card input{
+
+    width:100%;
+
+    padding:14px;
+
+    border:1px solid #d1d5db;
+
+    border-radius:10px;
+
+    outline:none;
+
+    font-size:15px;
+
+    transition:.3s;
+
+}
+
+.login-card input:focus{
+
+    border-color:#2563eb;
+
+    box-shadow:0 0 10px rgba(37,99,235,.2);
+
+}
+
+/* PASSWORD */
+
+.password-box{
+
+    position:relative;
+
+}
+
+.password-box i{
+
+    position:absolute;
+
+    right:18px;
+
+    top:50%;
+
+    transform:translateY(-50%);
+
+    color:#888;
+
+    cursor:pointer;
+
+}
+
+/* OPTIONS */
+
+.login-options{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    margin-top:18px;
+
+    margin-bottom:25px;
+
+    font-size:14px;
+
+}
+
+.login-options label{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:8px;
+
+    margin:0;
+
+}
+
+.login-options input{
+
+    width:auto;
+
+}
+
+.login-options a{
+
+    color:#2563eb;
+
+    text-decoration:none;
+
+}
+
+.login-options a:hover{
+
+    text-decoration:underline;
+
+}
+
+/* BUTTON */
+
+.login-card button{
+
+    width:100%;
+
+    padding:15px;
+
+    border:none;
+
+    border-radius:10px;
+
+    background:#2563eb;
+
+    color:white;
+
+    font-size:17px;
+
+    cursor:pointer;
+
+    transition:.3s;
+
+}
+
+.login-card button:hover{
+
+    background:#1d4ed8;
+
+    transform:translateY(-2px);
+
+}
+
+/* SIGNUP LINK */
+
+.signup-link{
+
+    text-align:center;
+
+    margin-top:30px;
+
+}
+
+.signup-link a{
+
+    color:#2563eb;
+
+    text-decoration:none;
+
+    font-weight:600;
+
+}
+
+.signup-link a:hover{
+
+    text-decoration:underline;
+
+}
+
+/* MOBILE */
+
+@media(max-width:900px){
+
+.login-page{
+
+    flex-direction:column;
+
+}
+
+.login-left{
+
+    text-align:center;
+
+    padding:60px 30px;
+
+}
+
+.login-left img{
+
+    margin:40px auto 0;
+
+}
+
+.login-card{
+
+    width:90%;
+
+    margin:50px auto;
+
+}
+}
+/* ===========================
+   SIGN UP PAGE
+=========================== */
+
+.signup-page{
+
+    display:flex;
+    min-height:100vh;
+
+}
+
+.signup-left{
+
+    flex:1;
+
+    background:linear-gradient(135deg,#1E3A8A,#090570);
+
+    color:white;
+
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+
+    padding:80px;
+
+}
+
+.signup-left h1{
+
+    font-size:42px;
+    margin-bottom:20px;
+
+}
+
+.signup-left h2{
+
+    font-size:48px;
+    line-height:1.2;
+    margin-bottom:25px;
+
+}
+
+.signup-left p{
+
+    font-size:18px;
+    line-height:1.8;
+    max-width:500px;
+    opacity:.95;
+
+}
+
+.signup-left img{
+
+    width:100%;
+    max-width:450px;
+    margin-top:50px;
+
+}
+
+/* RIGHT */
+
+.signup-right{
+
+    flex:1;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    background:#f8fafc;
+
+    padding:40px;
+
+}
+
+.signup-card{
+
+    width:480px;
+
+    background:white;
+
+    border-radius:20px;
+
+    padding:40px;
+
+    box-shadow:0 20px 50px rgba(0,0,0,.12);
+
+    animation:fadeUp .8s;
+
+}
+
+.signup-card h2{
+
+    font-size:34px;
+
+    margin-bottom:8px;
+
+}
+
+.signup-card p{
+
+    color:#6b7280;
+
+    margin-bottom:25px;
+
+}
+
+.signup-card label{
+
+    display:block;
+
+    margin-top:16px;
+
+    margin-bottom:8px;
+
+    font-weight:600;
+
+}
+
+.signup-card input,
+.signup-card select{
+
+    width:100%;
+
+    padding:14px;
+
+    border:1px solid #d1d5db;
+
+    border-radius:10px;
+
+    outline:none;
+
+    font-size:15px;
+
+    transition:.3s;
+
+    background:white;
+
+}
+
+.signup-card input:focus,
+.signup-card select:focus{
+
+    border-color:#1E3A8A;
+
+    box-shadow:0 0 10px rgba(30,58,138,.2);
+
+}
+
+.signup-card select{
+
+    cursor:pointer;
+
+}
+
+.signup-card button{
+
+    width:100%;
+
+    margin-top:30px;
+
+    padding:16px;
+
+    border:none;
+
+    border-radius:10px;
+
+    background:#1E3A8A;
+
+    color:white;
+
+    font-size:17px;
+
+    font-weight:600;
+
+    cursor:pointer;
+
+    transition:.3s;
+
+}
+
+.signup-card button:hover{
+
+    background:#1D4ED8;
+
+    transform:translateY(-2px);
+
+}
+
+.signup-card .password-box{
+
+    position:relative;
+
+}
+
+.signup-card .password-box i{
+
+    position:absolute;
+
+    right:18px;
+
+    top:50%;
+
+    transform:translateY(-50%);
+
+    cursor:pointer;
+
+    color:#888;
+
+}
+
+.signup-link{
+
+    text-align:center;
+
+    margin-top:30px;
+
+}
+
+.signup-link a{
+
+    color:#1E3A8A;
+
+    font-weight:600;
+
+    text-decoration:none;
+
+}
+
+.signup-link a:hover{
+
+    text-decoration:underline;
+
+}
+
+/* MOBILE */
+
+@media(max-width:900px){
+
+.signup-page{
+
+    flex-direction:column;
+
+}
+
+.signup-left{
+
+    text-align:center;
+
+    padding:60px 30px;
+
+}
+
+.signup-left img{
+
+    margin:40px auto 0;
+
+}
+
+.signup-card{
+
+    width:95%;
+
+    margin:40px auto;
+
+}
+
+}
+
+
+/* ===========================
+   MARKETPLACE
+=========================== */
+
+.market-hero{
+    background:#2563eb;
+    color:white;
+    padding:35px;
+    border-radius:15px;
+    margin-bottom:25px;
+}
+
+.market-hero h1{
+    font-size:32px;
+    margin-bottom:10px;
+}
+
+.market-hero p{
+    opacity:.9;
+}
+
+/* ===========================
+SUMMARY
+=========================== */
+
+.market-summary{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:25px;
+    gap:20px;
+}
+
+.summary-card{
+    background:white;
+    flex:1;
+    padding:20px;
+    border-radius:12px;
+    box-shadow:0 3px 10px rgba(0,0,0,.08);
+}
+
+.summary-card h3{
+    color:#666;
+    margin-bottom:8px;
+}
+
+.summary-card h1{
+    color:#2563eb;
+    font-size:34px;
+}
+
+.sell-btn{
+    background:#2563eb;
+    color:white;
+    padding:14px 24px;
+    border-radius:10px;
+    text-decoration:none;
+    font-weight:600;
+    transition:.3s;
+}
+
+.sell-btn:hover{
+    background:#1d4ed8;
+}
+
+/* ===========================
+SEARCH
+=========================== */
+
+.market-search{
+    margin-bottom:25px;
+}
+
+.market-search input{
+    width:100%;
+    padding:14px;
+    border-radius:10px;
+    border:1px solid #ddd;
+    font-size:16px;
+}
+
+/* ===========================
+GRID
+=========================== */
+
+.market-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+    gap:25px;
+}
+
+/* ===========================
+CARD
+=========================== */
+
+.market-card{
+    background:white;
+    border-radius:15px;
+    padding:25px;
+    box-shadow:0 4px 12px rgba(0,0,0,.08);
+    transition:.3s;
+}
+
+.market-card:hover{
+    transform:translateY(-6px);
+}
+
+.market-emoji{
+    font-size:60px;
+    text-align:center;
+    margin-bottom:15px;
+}
+
+.market-card h3{
+    margin-bottom:10px;
+}
+
+.market-card h2{
+    color:#2563eb;
+    margin-bottom:10px;
+}
+
+.market-card p{
+    color:#666;
+    margin-bottom:15px;
+    min-height:50px;
+}
+
+.market-card span{
+    display:block;
+    margin-bottom:20px;
+    font-size:14px;
+    color:#777;
+}
+
+/* ===========================
+BUTTONS
+=========================== */
+
+.market-buttons{
+    display:flex;
+    gap:10px;
+}
+
+.market-buttons a{
+    flex:1;
+    text-align:center;
+    background:#2563eb;
+    color:white;
+    padding:12px;
+    border-radius:8px;
+    text-decoration:none;
+    transition:.3s;
+}
+
+.market-buttons a:hover{
+    background:#1d4ed8;
+}
+
+/* ===========================
+RESPONSIVE
+=========================== */
+
+@media(max-width:768px){
+
+.market-summary{
+    flex-direction:column;
+    align-items:stretch;
+}
+
+.sell-btn{
+    text-align:center;
+}
+
+}
+/* SELL FORM */
+
+.sell-form{
+
+background:white;
+padding:30px;
+border-radius:15px;
+box-shadow:0 4px 10px rgba(0,0,0,.08);
+
+display:flex;
+flex-direction:column;
+gap:18px;
+
+}
+
+.sell-form label{
+
+font-weight:600;
+
+}
+
+.sell-form input,
+.sell-form textarea,
+.sell-form select{
+
+padding:14px;
+border:1px solid #ddd;
+border-radius:10px;
+font-size:15px;
+
+}
+
+.sell-submit{
+
+background:#2563eb;
+color:white;
+padding:15px;
+border:none;
+border-radius:10px;
+font-size:16px;
+cursor:pointer;
+transition:.3s;
+
+}
+
+.sell-submit:hover{
+
+background:#1d4ed8;
+
+}
+/* ===========================
+   ANNOUNCEMENTS PAGE
+=========================== */
+
+.announcement-hero{
+    background: linear-gradient(135deg,#2563eb,#1d4ed8);
+    color:white;
+    padding:35px;
+    border-radius:16px;
+    margin-bottom:30px;
+}
+
+.announcement-hero h1{
+    font-size:32px;
+    margin-bottom:10px;
+}
+
+.announcement-hero p{
+    opacity:.9;
+    font-size:16px;
+}
+
+/* ===========================
+   LIST
+=========================== */
+
+.announcement-list{
+    display:grid;
+    gap:20px;
+}
+
+/* ===========================
+   CARD
+=========================== */
+
+.announcement-card{
+    background:white;
+    padding:25px;
+    border-radius:15px;
+    box-shadow:0 6px 18px rgba(0,0,0,.08);
+    transition:.3s;
+    border-left:6px solid #2563eb;
+}
+
+.announcement-card:hover{
+    transform:translateY(-5px);
+    box-shadow:0 10px 24px rgba(0,0,0,.12);
+}
+
+.announcement-card h2{
+    margin:15px 0 10px;
+    color:#1e293b;
+}
+
+.announcement-card p{
+    color:#64748b;
+    line-height:1.7;
+    margin-bottom:15px;
+}
+
+.announcement-card small{
+    color:#94a3b8;
+    font-size:14px;
+}
+
+/* ===========================
+   TOP BAR
+=========================== */
+
+.announcement-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.announcement-category{
+    background:#dbeafe;
+    color:#1d4ed8;
+    padding:6px 14px;
+    border-radius:30px;
+    font-size:13px;
+    font-weight:600;
+}
+
+/* ===========================
+   PRIORITY
+=========================== */
+
+.priority{
+    padding:6px 14px;
+    border-radius:30px;
+    font-size:13px;
+    font-weight:600;
+}
+
+.priority.high{
+    background:#fee2e2;
+    color:#dc2626;
+}
+
+.priority.medium{
+    background:#fef3c7;
+    color:#d97706;
+}
+
+.priority.low{
+    background:#dcfce7;
+    color:#16a34a;
+}
+
+/* ===========================
+   RESPONSIVE
+=========================== */
+
+@media(max-width:768px){
+
+    .announcement-hero{
+        padding:25px;
+    }
+
+    .announcement-hero h1{
+        font-size:26px;
+    }
+
+    .announcement-card{
+        padding:20px;
+    }
+
+    .announcement-top{
+        flex-direction:column;
+        align-items:flex-start;
+        gap:10px;
+    }
+
+}
+
+/* ===========================
+   MAINTENANCE PAGE
+=========================== */
+
+.maintenance-header{
+    margin-bottom:30px;
+}
+
+.maintenance-header h1{
+    font-size:2.2rem;
+    color:#1e293b;
+    margin-bottom:8px;
+}
+
+.maintenance-header p{
+    color:#64748b;
+}
+
+/* ===========================
+   SUMMARY CARDS
+=========================== */
+
+.maintenance-summary{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:20px;
+    margin-bottom:30px;
+}
+
+.summary-card{
+    background:#fff;
+    border-radius:15px;
+    padding:25px;
+    text-align:center;
+    box-shadow:0 5px 20px rgba(0,0,0,.08);
+}
+
+.summary-card h4{
+    color:#64748b;
+    margin-bottom:10px;
+    font-size:15px;
+}
+
+.summary-card h2{
+    color:#2563eb;
+    font-size:2rem;
+}
+
+/* ===========================
+   FORM
+=========================== */
+
+.maintenance-form{
+    background:#fff;
+    border-radius:15px;
+    padding:30px;
+    box-shadow:0 5px 20px rgba(0,0,0,.08);
+    margin-bottom:35px;
+}
+
+.maintenance-form h2{
+    margin-bottom:20px;
+    color:#1e293b;
+}
+
+.maintenance-form form{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:18px;
+}
+
+.maintenance-form input,
+.maintenance-form select,
+.maintenance-form textarea{
+    width:100%;
+    padding:14px;
+    border:1px solid #d1d5db;
+    border-radius:10px;
+    font-size:15px;
+    outline:none;
+    transition:.3s;
+}
+
+.maintenance-form input:focus,
+.maintenance-form select:focus,
+.maintenance-form textarea:focus{
+    border-color:#2563eb;
+}
+
+.maintenance-form textarea{
+    grid-column:1/3;
+    resize:none;
+    min-height:140px;
+}
+
+.maintenance-form button{
+    grid-column:1/3;
+    background:#2563eb;
+    color:#fff;
+    border:none;
+    padding:14px;
+    border-radius:10px;
+    font-size:16px;
+    font-weight:600;
+    cursor:pointer;
+    transition:.3s;
+}
+
+.maintenance-form button:hover{
+    background:#1d4ed8;
+}
+
+/* ===========================
+   REQUESTS
+=========================== */
+
+.maintenance-list h2{
+    margin-bottom:20px;
+    color:#1e293b;
+}
+
+.request-card{
+    background:#fff;
+    border-left:6px solid #2563eb;
+    border-radius:15px;
+    padding:22px;
+    margin-bottom:20px;
+    box-shadow:0 5px 20px rgba(0,0,0,.08);
+}
+
+.request-card h3{
+    margin-bottom:10px;
+    color:#1e293b;
+}
+
+.request-card p{
+    margin:8px 0;
+    color:#475569;
+    line-height:1.6;
+}
+
+.status{
+    display:inline-block;
+    padding:5px 14px;
+    border-radius:20px;
+    background:#fbbf24;
+    color:white;
+    font-size:13px;
+    font-weight:600;
+}
+
+.status.completed{
+    background:#22c55e;
+}
+
+.status.progress{
+    background:#3b82f6;
+}
+
+/* ===========================
+   RESPONSIVE
+=========================== */
+
+@media(max-width:900px){
+
+.maintenance-summary{
+    grid-template-columns:1fr;
+}
+
+.maintenance-form form{
+    grid-template-columns:1fr;
+}
+
+.maintenance-form textarea,
+.maintenance-form button{
+    grid-column:auto;
+}
+
+}
