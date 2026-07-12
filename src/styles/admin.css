@@ -1,0 +1,278 @@
+.admin-header{
+    margin-bottom:30px;
+}
+
+.admin-header h1{
+    color:#1e293b;
+    font-size:2rem;
+}
+
+.admin-header p{
+    color:#64748b;
+    margin-top:5px;
+}
+
+.admin-cards{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:20px;
+    margin:25px 0;
+}
+
+.admin-card{
+    background:#fff;
+    border-radius:15px;
+    padding:20px;
+    box-shadow:0 5px 15px rgba(0,0,0,.08);
+}
+
+.admin-card h4{
+    color:#64748b;
+    margin-bottom:10px;
+}
+
+.admin-card h1{
+    color:#2563eb;
+    font-size:2rem;
+}
+
+.admin-search{
+    width:100%;
+    padding:13px;
+    border:1px solid #ddd;
+    border-radius:10px;
+    margin-bottom:25px;
+    font-size:15px;
+}
+
+.admin-table{
+    width:100%;
+    border-collapse:collapse;
+    background:white;
+    border-radius:15px;
+    overflow:hidden;
+    box-shadow:0 5px 15px rgba(0,0,0,.08);
+}
+
+.admin-table th{
+    background:#2563eb;
+    color:white;
+    padding:15px;
+}
+
+.admin-table td{
+    padding:15px;
+    border-bottom:1px solid #eee;
+}
+
+.admin-table tr:hover{
+    background:#f8fafc;
+}
+
+.delete-btn{
+    background:#dc2626;
+    color:white;
+    border:none;
+    padding:8px 14px;
+    border-radius:8px;
+    cursor:pointer;
+}
+
+.delete-btn:hover{
+    background:#b91c1c;
+}
+
+@media(max-width:900px){
+
+.admin-cards{
+grid-template-columns:1fr;
+}
+
+.admin-table{
+display:block;
+overflow-x:auto;
+}
+
+}
+
+
+/* ===========================
+   ADMIN PAGE LAYOUT
+=========================== */
+
+.admin-page{
+    display:flex;
+    min-height:100vh;
+    background:#f8fafc;
+}
+
+.admin-content{
+    flex:1;
+    margin-left:260px;
+    padding:35px;
+    width:calc(100% - 260px);
+    box-sizing:border-box;
+}
+
+/* ===========================
+   SIDEBAR
+=========================== */
+
+.admin-sidebar{
+    width:260px;
+    background:#1e293b;
+    color:white;
+    padding:30px 20px;
+    display:flex;
+    flex-direction:column;
+}
+
+.admin-sidebar h2{
+    margin-bottom:30px;
+    text-align:center;
+}
+
+.admin-sidebar a{
+    color:white;
+    text-decoration:none;
+    padding:14px 16px;
+    border-radius:10px;
+    margin-bottom:8px;
+    transition:.3s;
+}
+
+.admin-sidebar a:hover{
+    background:#334155;
+}
+
+.admin-sidebar .active{
+    background:#2563eb;
+}
+
+/* ===========================
+   FORM
+=========================== */
+
+.admin-form{
+    display:flex;
+    gap:15px;
+    margin:25px 0;
+    flex-wrap:wrap;
+}
+
+.admin-form input,
+.admin-form select{
+    flex:1;
+    min-width:220px;
+    padding:12px;
+    border:1px solid #d1d5db;
+    border-radius:10px;
+    font-size:15px;
+}
+
+.admin-form button{
+    background:#2563eb;
+    color:white;
+    border:none;
+    padding:12px 24px;
+    border-radius:10px;
+    cursor:pointer;
+    font-weight:600;
+}
+
+.admin-form button:hover{
+    background:#1d4ed8;
+}
+
+/* ===========================
+   TABLE
+=========================== */
+
+.admin-table{
+    width:100%;
+    background:white;
+    border-radius:15px;
+    overflow:hidden;
+    border-collapse:collapse;
+    box-shadow:0 5px 20px rgba(0,0,0,.08);
+}
+
+.admin-table th{
+    background:#2563eb;
+    color:white;
+    padding:16px;
+    text-align:left;
+}
+
+.admin-table td{
+    padding:16px;
+    border-bottom:1px solid #e5e7eb;
+}
+
+.admin-table tr:hover{
+    background:#f8fafc;
+}
+
+/* ===========================
+   BUTTONS
+=========================== */
+
+.delete-btn{
+    background:#ef4444;
+    color:white;
+    border:none;
+    padding:9px 16px;
+    border-radius:8px;
+    cursor:pointer;
+    font-weight:600;
+}
+
+.delete-btn:hover{
+    background:#dc2626;
+}
+
+/* ===========================
+   RESPONSIVE
+=========================== */
+
+@media(max-width:900px){
+
+.admin-page{
+    flex-direction:column;
+}
+
+.admin-sidebar{
+    width:100%;
+}
+
+.admin-form{
+    flex-direction:column;
+}
+
+.admin-table{
+    display:block;
+    overflow-x:auto;
+}
+
+}
+
+
+.admin-form textarea{
+
+width:100%;
+
+padding:12px;
+
+border:1px solid #d1d5db;
+
+border-radius:10px;
+
+font-size:15px;
+
+resize:vertical;
+
+min-height:100px;
+
+font-family:inherit;
+
+}

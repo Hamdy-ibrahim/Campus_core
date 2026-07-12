@@ -34,24 +34,55 @@ function Dashboard() {
 
     setUser(currentUser);
 
-    const joined = JSON.parse(
+   // Student joined clubs
+const joinedClubs =
+JSON.parse(
+localStorage.getItem(
+"joinedClubs_" + currentUser.email
+)
+) || [];
 
-      localStorage.getItem(
-        "joinedClubs_" + currentUser.email
-      )
+// All clubs created by admin
+const allClubs =
+JSON.parse(localStorage.getItem("clubs")) || [];
 
-    ) || [];
+// Remove deleted clubs
+const validJoinedClubs = joinedClubs.filter(joinedClub =>
+allClubs.some(club => club.name === joinedClub)
+);
 
-    setClubCount(joined.length);
-    const registeredEvents = JSON.parse(
+localStorage.setItem(
+"joinedClubs_" + currentUser.email,
+JSON.stringify(validJoinedClubs)
+);
+
+setClubCount(validJoinedClubs.length);
+
+// Student registered events
+const registeredEvents =
+JSON.parse(
 localStorage.getItem(
 "registeredEvents_" + currentUser.email
 )
 ) || [];
 
-setEvents(registeredEvents);
+// All events from admin
+const allEvents =
+JSON.parse(localStorage.getItem("events")) || [];
 
-setEventCount(registeredEvents.length);
+// Remove deleted events
+const validEvents = registeredEvents.filter(event =>
+allEvents.some(e => e.title === event)
+);
+
+localStorage.setItem(
+"registeredEvents_" + currentUser.email,
+JSON.stringify(validEvents)
+);
+
+setEvents(validEvents);
+
+setEventCount(validEvents.length);
 
 
 
@@ -124,14 +155,6 @@ setAnnouncementCount(savedAnnouncements.length);
 Ready for another productive day on campus?
 
 </p>
-
-</div>
-
-<div className="notification-card">
-
-<i className="fa-solid fa-bell"></i>
-
-<span>3 New Notifications</span>
 
 </div>
 
@@ -210,9 +233,7 @@ onClick={()=>navigate("/events")}
 events.map((event,index)=>(
 
 <li key={index}>
-
-📅 {event}
-
+ {event}
 </li>
 
 ))

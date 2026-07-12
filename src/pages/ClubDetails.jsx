@@ -5,7 +5,15 @@ import Sidebar from "../components/Sidebar";
 function ClubDetails() {
 
 const [searchParams] = useSearchParams();
-const selectedClub = searchParams.get("club");
+
+const clubId = Number(searchParams.get("id"));
+
+const clubs =
+  JSON.parse(localStorage.getItem("clubs")) || [];
+
+const club = clubs.find(
+  (club) => club.id === clubId
+);
 
 const currentUser = JSON.parse(localStorage.getItem("loggedInUser"));
 
@@ -40,394 +48,16 @@ function joinClub() {
 
 }
 
-const clubs = {
-
-mathematics:{
-
-name:"📐 Mathematics Society",
-
-category:"Academic Club",
-
-members:"84 Members",
-
-meeting:"Monday",
-
-venue:"Mathematics Block",
-
-president:"Sarah Ahmed",
-
-description:
-"The Mathematics Society brings together students who enjoy solving problems, participating in mathematics competitions and helping fellow students improve their analytical skills.",
-
-activities:[
-"Weekly Problem Solving",
-"Math Olympiad",
-"Peer Tutoring"
-]
-
-},
-
-debate:{
-
-name:"🎤 Debate Society",
-
-category:"Academic Club",
-
-members:"95 Members",
-
-meeting:"Tuesday",
-
-venue:"Lecture Hall 3",
-
-president:"David Kim",
-
-description:
-"Develop confidence, communication skills and critical thinking through debates and public speaking competitions.",
-
-activities:[
-"Weekly Debates",
-"Public Speaking",
-"Competitions"
-]
-
-},
-
-accounting:{
-
-name:"📚 Accounting Club",
-
-category:"Academic Club",
-
-members:"61 Members",
-
-meeting:"Thursday",
-
-venue:"Business Block",
-
-president:"Aisha Omar",
-
-description:
-"Learn accounting principles, financial literacy and entrepreneurship through workshops and guest speakers.",
-
-activities:[
-"Finance Workshops",
-"Business Talks",
-"Case Studies"
-]
-
-},
-
-programming:{
-
-name:"💻 Programming Club",
-
-category:"Technology Club",
-
-members:"145 Members",
-
-meeting:"Friday",
-
-venue:"ICT Lab",
-
-president:"John Doe",
-
-description:
-"Learn Java, Python, JavaScript, Web Development and Artificial Intelligence while participating in hackathons.",
-
-activities:[
-"Hackathons",
-"Coding Challenges",
-"Projects"
-]
-
-},
-
-robotics:{
-
-name:"🤖 Robotics Club",
-
-category:"Technology Club",
-
-members:"76 Members",
-
-meeting:"Wednesday",
-
-venue:"Engineering Lab",
-
-president:"Kevin Mwangi",
-
-description:
-"Build robots, automation systems and engineering projects for university competitions.",
-
-activities:[
-"Robot Building",
-"Automation",
-"Innovation Challenge"
-]
-
-},
-
-cybersecurity:{
-
-name:"🔒 Cyber Security Club",
-
-category:"Technology Club",
-
-members:"58 Members",
-
-meeting:"Friday",
-
-venue:"Cyber Lab",
-
-president:"Grace Wanjiku",
-
-description:
-"Learn ethical hacking, digital forensics and cyber defence using practical hands-on workshops.",
-
-activities:[
-"CTFs",
-"Pen Testing",
-"Security Workshops"
-]
-
-},
-
-football:{
-
-name:"⚽ Football Club",
-
-category:"Sports Club",
-
-members:"110 Members",
-
-meeting:"Wednesday",
-
-venue:"Main Field",
-
-president:"Brian Otieno",
-
-description:
-"Represent the university in football leagues while improving teamwork and fitness.",
-
-activities:[
-"Training",
-"League Matches",
-"Fitness"
-]
-
-},
-
-basketball:{
-
-name:"🏀 Basketball Club",
-
-category:"Sports Club",
-
-members:"82 Members",
-
-meeting:"Tuesday",
-
-venue:"Sports Arena",
-
-president:"Michael Kariuki",
-
-description:
-"Weekly training sessions and inter-university basketball competitions.",
-
-activities:[
-"Training",
-"Competitions",
-"Fitness"
-]
-
-},
-
-volleyball:{
-
-name:"🏐 Volleyball Club",
-
-category:"Sports Club",
-
-members:"67 Members",
-
-meeting:"Thursday",
-
-venue:"Indoor Court",
-
-president:"Faith Njeri",
-
-description:
-"Improve volleyball skills through training sessions and friendly matches.",
-
-activities:[
-"Practice",
-"Tournaments",
-"Fitness"
-]
-
-},
-
-music:{
-
-name:"🎵 Music Club",
-
-category:"Entertainment Club",
-
-members:"98 Members",
-
-meeting:"Friday",
-
-venue:"Auditorium",
-
-president:"Joseph Mwangi",
-
-description:
-"Join singers, instrumentalists and bands to perform during university events.",
-
-activities:[
-"Choir",
-"Band Practice",
-"Talent Shows"
-]
-
-},
-
-photography:{
-
-name:"📸 Photography Club",
-
-category:"Entertainment Club",
-
-members:"54 Members",
-
-meeting:"Saturday",
-
-venue:"Media Studio",
-
-president:"Mercy Ali",
-
-description:
-"Learn photography, editing and event coverage while building your portfolio.",
-
-activities:[
-"Photo Walks",
-"Editing",
-"Events"
-]
-
-},
-
-dance:{
-
-name:"💃 Dance Club",
-
-category:"Entertainment Club",
-
-members:"72 Members",
-
-meeting:"Thursday",
-
-venue:"Auditorium",
-
-president:"Lilian Achieng",
-
-description:
-"Practice different dance styles and perform during campus festivals.",
-
-activities:[
-"Practice",
-"Shows",
-"Competitions"
-]
-
-},
-
-council:{
-
-name:"👔 Student Council",
-
-category:"Leadership Club",
-
-members:"25 Members",
-
-meeting:"Monday",
-
-venue:"Administration Block",
-
-president:"Student President",
-
-description:
-"Represent student interests and organize university activities.",
-
-activities:[
-"Leadership",
-"Meetings",
-"Events"
-]
-
-},
-
-entrepreneurship:{
-
-name:"🚀 Entrepreneurship Club",
-
-category:"Leadership Club",
-
-members:"63 Members",
-
-meeting:"Wednesday",
-
-venue:"Innovation Hub",
-
-president:"Patrick Maina",
-
-description:
-"Learn how to build startups and develop entrepreneurial skills.",
-
-activities:[
-"Pitch Events",
-"Business Plans",
-"Networking"
-]
-
-},
-
-rotaract:{
-
-name:"🌍 Rotaract Club",
-
-category:"Leadership Club",
-
-members:"44 Members",
-
-meeting:"Saturday",
-
-venue:"Conference Room",
-
-president:"Mary Wambui",
-
-description:
-"Volunteer in community service and leadership projects.",
-
-activities:[
-"Community Service",
-"Fundraising",
-"Leadership"
-]
-
-}
-
-};
-
-const club = clubs[selectedClub];
 useEffect(() => {
+
+  if (!club) return;
 
   const saved =
     JSON.parse(localStorage.getItem(clubKey)) || [];
 
   setJoined(saved.includes(club.name));
 
-}, [club.name, clubKey]);
+}, [club, clubKey]);
 
 if(!club){
 
@@ -498,7 +128,7 @@ disabled={joined}
 
 <div>
 
-<h2>4.9 ⭐</h2>
+<h2>{club.rating} ⭐</h2>
 
 <p>Rating</p>
 
@@ -556,7 +186,9 @@ Activities
 
 <ul className="detail-list">
 
-{club.activities.map((activity,index)=>(
+{club.activities
+  ?.split(",")
+  .map((activity, index) => (
 
 <li key={index}>
 
@@ -582,13 +214,7 @@ Membership Requirements
 
 <ul className="detail-list">
 
-<li>Registered CampusCore student</li>
-
-<li>No previous experience required</li>
-
-<li>Attend club meetings regularly</li>
-
-<li>Respect all club members</li>
+<li>{club.requirements}</li>
 
 </ul>
 
@@ -619,7 +245,7 @@ Club Leadership
 
 <strong>Vice President</strong>
 
-<span>Sarah Ahmed</span>
+<span>{club.vicePresident}</span>
 
 </div>
 
@@ -627,7 +253,7 @@ Club Leadership
 
 <strong>Secretary</strong>
 
-<span>Brian Otieno</span>
+<span>{club.secretary}</span>
 
 </div>
 
@@ -647,14 +273,13 @@ Club Statistics
 
 <p>
 
-<strong>Founded:</strong> 2018
+<strong>Founded:</strong> {club.founded}
 
 </p>
 
 <p>
 
-<strong>Projects Completed:</strong> 34
-
+<strong>Projects Completed:</strong> {club.projects}
 </p>
 
 <p>

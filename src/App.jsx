@@ -14,6 +14,15 @@ import ItemDetails from "./pages/ItemDetails";
 import SellItem from "./pages/SellItem";
 import Announcements from "./pages/Announcements";
 import Maintenance from "./pages/Maintenance";
+import AdminDashboard from "./pages/AdminDashboard";
+import AdminStudents from "./pages/AdminStudents";
+import AdminClubs from "./pages/AdminClubs";
+import AdminEvents from "./pages/AdminEvents";
+import AdminAnnouncements from "./pages/AdminAnnouncements";
+import AdminMarketplace from "./pages/AdminMarketplace";
+import AdminMaintenance from "./pages/AdminMaintenance";
+
+
 
 function App() {
   return (
@@ -32,6 +41,14 @@ function App() {
       <Route path="/sell-item" element={<SellItem />} />
       <Route path="/announcements" element={<Announcements />} />
       <Route path="/maintenance" element={<Maintenance />} />
+      <Route path="/admin" element={<AdminDashboard/>} />
+<Route path="/admin/students" element={<AdminStudents/>} />
+<Route path="/admin/clubs" element={<AdminClubs/>} />
+<Route path="/admin/events" element={<AdminEvents/>} />
+<Route path="/admin/announcements" element={<AdminAnnouncements/>} />
+<Route path="/admin/marketplace" element={<AdminMarketplace/>} />
+<Route path="/admin/maintenance" element={<AdminMaintenance/>} />
+
     </Routes>
   );
 }

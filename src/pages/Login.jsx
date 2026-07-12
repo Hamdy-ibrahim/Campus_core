@@ -25,19 +25,44 @@ function Login() {
         user.password === password.trim()
     );
 
-    if (!savedUser) {
-      alert("Incorrect email or password.");
-      return;
-    }
+    // ---------- ADMIN LOGIN ----------
+if (
+  email.trim() === "admin@campuscore.com" &&
+  password.trim() === "admin123"
+) {
 
-    localStorage.setItem(
-      "loggedInUser",
-      JSON.stringify(savedUser)
-    );
-
-    navigate("/dashboard");
+  const admin = {
+    fullname: "System Administrator",
+    email: "admin@campuscore.com",
+    role: "admin"
   };
 
+  localStorage.setItem(
+    "loggedInUser",
+    JSON.stringify(admin)
+  );
+
+  navigate("/admin");
+
+  return;
+}
+
+// ---------- STUDENT LOGIN ----------
+if (!savedUser) {
+
+  alert("Incorrect email or password.");
+
+  return;
+
+}
+
+localStorage.setItem(
+  "loggedInUser",
+  JSON.stringify(savedUser)
+);
+
+navigate("/dashboard");
+};
   return (
     <div className="login-page">
 

@@ -1219,6 +1219,23 @@ TESTIMONIALS
 }
 
 }
+.team-list{
+  list-style: none;
+  padding: 0;
+  margin-top: 15px;
+}
+
+.team-list li{
+  margin-bottom: 12px;
+  color: #ddd;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.team-list i{
+  color: #4f8cff;
+  margin-right: 8px;
+}
 
 /* ===========================
 ANIMATIONS

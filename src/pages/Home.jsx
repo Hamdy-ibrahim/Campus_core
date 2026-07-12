@@ -881,34 +881,33 @@ function Home() {
 
           <div className="footer-contact">
 
-            <h3>Contact Us</h3>
+  <h3>Project Team</h3>
 
-            <p>
+  <ul className="team-list">
 
-              <i className="fa-solid fa-location-dot"></i>
+    <li>
+      <i className="fa-solid fa-user"></i>
+      hamdi.ibrahim@strathmore.edu
+    </li>
 
-              {" "}Riara University, Nairobi
+    <li>
+      <i className="fa-solid fa-user"></i>
+      naila.njeri@strathmore.edu
+    </li>
 
-            </p>
+    <li>
+      <i className="fa-solid fa-user"></i>
+      raphael.wanga@strathmore.edu
+    </li>
 
-            <p>
+    <li>
+      <i className="fa-solid fa-user"></i>
+      dan.rugendo@strathmore.edu
+    </li>
 
-              <i className="fa-solid fa-envelope"></i>
+  </ul>
 
-              {" "}support@campuscore.com
-
-            </p>
-
-            <p>
-
-              <i className="fa-solid fa-phone"></i>
-
-              {" "}+254 700 123 456
-
-            </p>
-
-          </div>
-
+</div>
         </div>
 
         <hr />

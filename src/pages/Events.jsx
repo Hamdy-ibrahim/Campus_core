@@ -23,69 +23,21 @@ setRegisteredEvents(saved);
 
 }, [eventKey]);
 
-const events = [
+const [events, setEvents] = useState([]);
 
-{
-id:1,
-title:"Campus Hackathon 2026",
-category:"technology",
-date:"20 Aug",
-time:"9:00 AM",
-location:"ICT Innovation Centre",
-description:"Build innovative software solutions with students across campus."
-},
+useEffect(() => {
 
-{
-id:2,
-title:"AI Workshop",
-category:"technology",
-date:"24 Aug",
-time:"2:00 PM",
-location:"Computer Lab",
-description:"Learn Artificial Intelligence using Python."
-},
+const savedEvents =
+JSON.parse(localStorage.getItem("events")) || [];
 
-{
-id:3,
-title:"Career Fair",
-category:"career",
-date:"30 Aug",
-time:"10:00 AM",
-location:"Main Hall",
-description:"Meet employers and internship recruiters."
-},
+setEvents(savedEvents);
 
-{
-id:4,
-title:"CV Writing Workshop",
-category:"career",
-date:"2 Sep",
-time:"11:00 AM",
-location:"Conference Room",
-description:"Improve your CV with HR professionals."
-},
+const savedRegistered =
+JSON.parse(localStorage.getItem(eventKey)) || [];
 
-{
-id:5,
-title:"Interfaculty Football Tournament",
-category:"sports",
-date:"8 Sep",
-time:"9:00 AM",
-location:"Sports Grounds",
-description:"Support your faculty in the annual football tournament."
-},
+setRegisteredEvents(savedRegistered);
 
-{
-id:6,
-title:"Freshers Talent Show",
-category:"entertainment",
-date:"15 Sep",
-time:"6:00 PM",
-location:"Auditorium",
-description:"Music, dance, comedy and performances from students."
-}
-
-];
+}, [eventKey]);
 
 const filteredEvents = events.filter(event =>
 event.title.toLowerCase().includes(search.toLowerCase())

@@ -1,12 +1,18 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "../styles/Clubs.css";
 
 function Clubs() {
   const navigate = useNavigate();
+  const [clubs, setClubs] = useState([]);
+  const [category, setCategory] = useState("all");
 
   useEffect(() => {
     const currentUser = JSON.parse(localStorage.getItem("loggedInUser"));
+    const savedClubs =
+  JSON.parse(localStorage.getItem("clubs")) || [];
+
+setClubs(savedClubs);
 
     if (!currentUser) {
       navigate("/login");
@@ -47,34 +53,6 @@ function Clubs() {
 
         card.style.display =
           club.includes(value) ? "block" : "none";
-      });
-    });
-
-    // Filters
-
-    const filterButtons =
-      document.querySelectorAll(".filter-btn");
-
-    filterButtons.forEach((button) => {
-      button.addEventListener("click", function () {
-        filterButtons.forEach((btn) =>
-          btn.classList.remove("active")
-        );
-
-        this.classList.add("active");
-
-        const category = this.dataset.category;
-
-        clubCards.forEach((card) => {
-          if (
-            category === "all" ||
-            card.dataset.category === category
-          ) {
-            card.style.display = "block";
-          } else {
-            card.style.display = "none";
-          }
-        });
       });
     });
 
@@ -190,505 +168,96 @@ function Clubs() {
 
         <div className="club-filters">
 
-          <button className="filter-btn active" data-category="all">
-            All
-          </button>
+          <button
+className={category==="all" ? "filter-btn active" : "filter-btn"}
+onClick={()=>setCategory("all")}
+>
+All
+</button>
 
-          <button className="filter-btn" data-category="academic">
-            Academic
-          </button>
+          <button
+className={category==="academic" ? "filter-btn active" : "filter-btn"}
+onClick={()=>setCategory("academic")}
+>
+Academic
+</button>
 
-          <button className="filter-btn" data-category="technology">
-            Technology
-          </button>
+          <button
+className={category==="technology" ? "filter-btn active" : "filter-btn"}
+onClick={()=>setCategory("technology")}
+>
+Technology
+</button>
 
-          <button className="filter-btn" data-category="sports">
-            Sports
-          </button>
+          <button
+className={category==="sports" ? "filter-btn active" : "filter-btn"}
+onClick={()=>setCategory("sports")}
+>
+Sports
+</button>
 
-          <button className="filter-btn" data-category="entertainment">
-            Entertainment
-          </button>
+          <button
+className={category==="entertainment" ? "filter-btn active" : "filter-btn"}
+onClick={()=>setCategory("entertainment")}
+>
+Entertainment
+</button>
 
-          <button className="filter-btn" data-category="leadership">
-            Leadership
-          </button>
+          <button
+className={category==="leadership" ? "filter-btn active" : "filter-btn"}
+onClick={()=>setCategory("leadership")}
+>
+Leadership
+</button>
 
         </div>
-        {/* =========================
-    ACADEMIC
-========================= */}
+        <div className="clubs-grid">
 
-<h2 className="category-title">📘 Academic Clubs</h2>
+{clubs
+.filter(club =>
+  category === "all" ||
+  club.category.toLowerCase() === category
+)
+.map((club) => (
 
-<div className="clubs-grid">
+<div
+key={club.id}
+className="club-card"
+data-category={club.category.toLowerCase()}
+>
 
-  <div className="club-card" data-category="academic">
+<h3>{club.name}</h3>
 
-    <h3>📐 Mathematics Society</h3>
+<span>{club.members}</span>
 
-    <span>84 Members</span>
+<p>{club.description}</p>
 
-    <p>
-      Weekly problem-solving sessions,
-      math competitions and peer tutoring.
-    </p>
+<div className="club-buttons">
 
-    <div className="club-buttons">
+<Link
+to={`/club-details?id=${club.id}`}
+className="details-btn"
+>
+View Club
+</Link>
 
-      <Link
-        to="/club-details?club=mathematics"
-        className="details-btn"
-      >
-        View Club
-      </Link>
-
-      <button className="join-btn">
-        Join
-      </button>
-
-    </div>
-
-  </div>
-
-  <div className="club-card" data-category="academic">
-
-    <h3>🎤 Debate Society</h3>
-
-    <span>95 Members</span>
-
-    <p>
-      Improve communication,
-      confidence and public speaking.
-    </p>
-
-    <div className="club-buttons">
-
-      <Link
-        to="/club-details?club=debate"
-        className="details-btn"
-      >
-        View Club
-      </Link>
-
-      <button className="join-btn">
-        Join
-      </button>
-
-    </div>
-
-  </div>
-
-  <div className="club-card" data-category="academic">
-
-    <h3>📚 Accounting Club</h3>
-
-    <span>61 Members</span>
-
-    <p>
-      Financial literacy,
-      entrepreneurship and accounting workshops.
-    </p>
-
-    <div className="club-buttons">
-
-      <Link
-        to="/club-details?club=accounting"
-        className="details-btn"
-      >
-        View Club
-      </Link>
-
-      <button className="join-btn">
-        Join
-      </button>
-
-    </div>
-
-  </div>
+<button className="join-btn">
+Join
+</button>
 
 </div>
 
-{/* =========================
-    TECHNOLOGY
-========================= */}
-
-<h2 className="category-title">💻 Technology Clubs</h2>
-
-<div className="clubs-grid">
-
-  <div className="club-card" data-category="technology">
-
-    <h3>💻 Programming Club</h3>
-
-    <span>145 Members</span>
-
-    <p>
-      Learn Java, Python, Web Development and
-      participate in hackathons and coding competitions.
-    </p>
-
-    <div className="club-buttons">
-
-      <Link
-        to="/club-details?club=programming"
-        className="details-btn"
-      >
-        View Club
-      </Link>
-
-      <button className="join-btn">
-        Join
-      </button>
-
-    </div>
-
-  </div>
-
-  <div className="club-card" data-category="technology">
-
-    <h3>🤖 Robotics Club</h3>
-
-    <span>76 Members</span>
-
-    <p>
-      Design robots, automation systems and
-      compete in engineering innovation challenges.
-    </p>
-
-    <div className="club-buttons">
-
-      <Link
-        to="/club-details?club=robotics"
-        className="details-btn"
-      >
-        View Club
-      </Link>
-
-      <button className="join-btn">
-        Join
-      </button>
-
-    </div>
-
-  </div>
-
-  <div className="club-card" data-category="technology">
-
-    <h3>🔒 Cyber Security Club</h3>
-
-    <span>58 Members</span>
-
-    <p>
-      Learn ethical hacking,
-      digital security and cyber defence.
-    </p>
-
-    <div className="club-buttons">
-
-      <Link
-        to="/club-details?club=cybersecurity"
-        className="details-btn"
-      >
-        View Club
-      </Link>
-
-      <button className="join-btn">
-        Join
-      </button>
-
-    </div>
-
-  </div>
-
 </div>
 
-{/* =========================
-    SPORTS
-========================= */}
-
-<h2 className="category-title">⚽ Sports Clubs</h2>
-
-<div className="clubs-grid">
-
-  <div className="club-card" data-category="sports">
-
-    <h3>⚽ Football Club</h3>
-
-    <span>110 Members</span>
-
-    <p>
-      Weekly training sessions,
-      university league matches and tournaments.
-    </p>
-
-    <div className="club-buttons">
-
-      <Link
-        to="/club-details?club=football"
-        className="details-btn"
-      >
-        View Club
-      </Link>
-
-      <button className="join-btn">
-        Join
-      </button>
-
-    </div>
-
-  </div>
-
-  <div className="club-card" data-category="sports">
-
-    <h3>🏀 Basketball Club</h3>
-
-    <span>82 Members</span>
-
-    <p>
-      Develop teamwork and compete in
-      inter-university competitions.
-    </p>
-
-    <div className="club-buttons">
-
-      <Link
-        to="/club-details?club=basketball"
-        className="details-btn"
-      >
-        View Club
-      </Link>
-
-      <button className="join-btn">
-        Join
-      </button>
-
-    </div>
-
-  </div>
-
-  <div className="club-card" data-category="sports">
-
-    <h3>🏐 Volleyball Club</h3>
-
-    <span>67 Members</span>
-
-    <p>
-      Improve your volleyball skills
-      through weekly practice.
-    </p>
-
-    <div className="club-buttons">
-
-      <Link
-        to="/club-details?club=volleyball"
-        className="details-btn"
-      >
-        View Club
-      </Link>
-
-      <button className="join-btn">
-        Join
-      </button>
-
-    </div>
-
-  </div>
-
-</div>
-{/* =========================
-    ENTERTAINMENT
-========================= */}
-
-<h2 className="category-title">🎵 Entertainment Clubs</h2>
-
-<div className="clubs-grid">
-
-  <div className="club-card" data-category="entertainment">
-
-    <h3>🎵 Music Club</h3>
-
-    <span>98 Members</span>
-
-    <p>
-      Join vocalists, instrumentalists and bands.
-      Perform during university events and talent shows.
-    </p>
-
-    <div className="club-buttons">
-
-      <Link
-        to="/club-details?club=music"
-        className="details-btn"
-      >
-        View Club
-      </Link>
-
-      <button className="join-btn">
-        Join
-      </button>
-
-    </div>
-
-  </div>
-
-  <div className="club-card" data-category="entertainment">
-
-    <h3>📸 Photography Club</h3>
-
-    <span>54 Members</span>
-
-    <p>
-      Learn photography, editing and event coverage while
-      building an amazing portfolio.
-    </p>
-
-    <div className="club-buttons">
-
-      <Link
-        to="/club-details?club=photography"
-        className="details-btn"
-      >
-        View Club
-      </Link>
-
-      <button className="join-btn">
-        Join
-      </button>
-
-    </div>
-
-  </div>
-
-  <div className="club-card" data-category="entertainment">
-
-    <h3>💃 Dance Club</h3>
-
-    <span>72 Members</span>
-
-    <p>
-      Practice different dance styles and perform during
-      university festivals and competitions.
-    </p>
-
-    <div className="club-buttons">
-
-      <Link
-        to="/club-details?club=dance"
-        className="details-btn"
-      >
-        View Club
-      </Link>
-
-      <button className="join-btn">
-        Join
-      </button>
-
-    </div>
-
-  </div>
-
-</div>
-
-{/* =========================
-    LEADERSHIP
-========================= */}
-
-<h2 className="category-title">👔 Leadership Clubs</h2>
-
-<div className="clubs-grid">
-
-  <div className="club-card" data-category="leadership">
-
-    <h3>👔 Student Council</h3>
-
-    <span>25 Members</span>
-
-    <p>
-      Represent students, organize university activities
-      and develop leadership skills.
-    </p>
-
-    <div className="club-buttons">
-
-      <Link
-        to="/club-details?club=council"
-        className="details-btn"
-      >
-        View Club
-      </Link>
-
-      <button className="join-btn">
-        Join
-      </button>
-
-    </div>
-
-  </div>
-
-  <div className="club-card" data-category="leadership">
-
-    <h3>🚀 Entrepreneurship Club</h3>
-
-    <span>63 Members</span>
-
-    <p>
-      Learn business planning, startup development and
-      innovation from experienced entrepreneurs.
-    </p>
-
-    <div className="club-buttons">
-
-      <Link
-        to="/club-details?club=entrepreneurship"
-        className="details-btn"
-      >
-        View Club
-      </Link>
-
-      <button className="join-btn">
-        Join
-      </button>
-
-    </div>
-
-  </div>
-
-  <div className="club-card" data-category="leadership">
-
-    <h3>🌍 Rotaract Club</h3>
-
-    <span>44 Members</span>
-
-    <p>
-      Participate in community service projects,
-      leadership training and volunteer activities.
-    </p>
-
-    <div className="club-buttons">
-
-      <Link
-        to="/club-details?club=rotaract"
-        className="details-btn"
-      >
-        View Club
-      </Link>
-
-      <button className="join-btn">
-        Join
-      </button>
-
-    </div>
-
-  </div>
+))}
 
 </div>
 
 <footer className="clubs-footer">
 
-  <p>
-    © 2026 CampusCore | Student Clubs
-  </p>
+<p>
+© 2026 CampusCore | Student Clubs
+</p>
 
 </footer>
 

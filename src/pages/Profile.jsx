@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
 import "../styles/profile.css";
 
@@ -31,15 +31,26 @@ const [requests, setRequests] = useState([]);
 
     setUser(currentUser);
 
-    const joinedClubs = JSON.parse(
+    const joinedClubs =
+JSON.parse(
+localStorage.getItem(
+"joinedClubs_" + currentUser.email
+)
+) || [];
 
-      localStorage.getItem(
-        "joinedClubs_" + currentUser.email
-      )
+const allClubs =
+JSON.parse(localStorage.getItem("clubs")) || [];
 
-    ) || [];
+const validJoinedClubs = joinedClubs.filter(joinedClub =>
+allClubs.some(club => club.name === joinedClub)
+);
 
-    setClubs(joinedClubs);
+localStorage.setItem(
+"joinedClubs_" + currentUser.email,
+JSON.stringify(validJoinedClubs)
+);
+
+setClubs(validJoinedClubs);
 
 // Load registered events
 const registeredEvents = JSON.parse(
@@ -101,15 +112,6 @@ Manage your CampusCore account and campus activities.
 </p>
 
 </div>
-
-<button className="edit-profile-btn">
-
-<i className="fa-solid fa-pen"></i>
-
-Edit Profile
-
-</button>
-
 </div>
 
 <div className="profile-card">
@@ -300,14 +302,6 @@ events.map((event,index)=>(
 </div>
 
 <div className="profile-buttons">
-
-<button className="primary">
-
-<i className="fa-solid fa-pen"></i>
-
-Edit Profile
-
-</button>
 
 <button
 className="secondary"
