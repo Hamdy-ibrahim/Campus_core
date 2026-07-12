@@ -305,8 +305,9 @@ View Profile
 
 ### Administrator
 
+
 ```
-Login
+Login - use email "admin@campuscore.com" pass "admin123"
      ↓
 Dashboard
      ↓
