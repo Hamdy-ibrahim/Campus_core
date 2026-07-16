@@ -214,17 +214,19 @@ CampusCore
 
 </p>
 
-<button
-className="register-btn"
-style={{
-marginTop:"20px",
-width:"100%"
-}}
+<a
+  href={`mailto:${item.sellerEmail}`}
+  className="register-btn"
+  style={{
+    marginTop: "20px",
+    width: "100%",
+    display: "block",
+    textAlign: "center",
+    textDecoration: "none"
+  }}
 >
-
-Contact Seller
-
-</button>
+  Contact Seller
+</a>
 
 </div>
 

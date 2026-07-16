@@ -806,7 +806,7 @@ function Home() {
           FOOTER
       =========================== */}
 
-      <footer className="footer">
+      <footer className="footer" id="contact">
 
         <div className="footer-container">
 
@@ -881,28 +881,34 @@ function Home() {
 
           <div className="footer-contact">
 
-  <h3>Project Team</h3>
+  <h3>Developed By</h3>
 
   <ul className="team-list">
 
     <li>
+  <i className="fa-solid fa-user"></i>
+  <a href="mailto:hamdi.ibrahim@strathmore.edu">
+    hamdi.ibrahim@strathmore.edu
+  </a>
+</li>
+
+    <li>
       <i className="fa-solid fa-user"></i>
-      hamdi.ibrahim@strathmore.edu
+      <a href="mailto:naila.njeri@strathmore.edu">
+        naila.njeri@strathmore.edu</a>
     </li>
 
     <li>
       <i className="fa-solid fa-user"></i>
-      naila.njeri@strathmore.edu
+      <a href="mailto:raphael.wanga@strathmore.edu">
+        raphael.wanga@strathmore.edu</a>
     </li>
 
     <li>
       <i className="fa-solid fa-user"></i>
-      raphael.wanga@strathmore.edu
-    </li>
-
-    <li>
-      <i className="fa-solid fa-user"></i>
-      dan.rugendo@strathmore.edu
+      <a href="dan.rugendo@strathmore.edu">
+        dan.rugendo@strathmore.edu
+      </a>
     </li>
 
   </ul>

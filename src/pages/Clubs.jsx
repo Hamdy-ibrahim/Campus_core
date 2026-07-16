@@ -7,10 +7,38 @@ function Clubs() {
   const [clubs, setClubs] = useState([]);
   const [category, setCategory] = useState("all");
 
+  function joinClub(clubName) {
+
+  const currentUser = JSON.parse(localStorage.getItem("loggedInUser"));
+
+  const clubKey = "joinedClubs_" + currentUser.email;
+
+  let joinedClubs =
+    JSON.parse(localStorage.getItem(clubKey)) || [];
+
+  if (joinedClubs.includes(clubName)) {
+    alert("You have already joined this club.");
+    return;
+  }
+
+  joinedClubs.push(clubName);
+
+  localStorage.setItem(
+    clubKey,
+    JSON.stringify(joinedClubs)
+  );
+
+  alert("Successfully joined " + clubName);
+
+  window.location.reload();
+}
+
   useEffect(() => {
     const currentUser = JSON.parse(localStorage.getItem("loggedInUser"));
     const savedClubs =
   JSON.parse(localStorage.getItem("clubs")) || [];
+
+  
 
 setClubs(savedClubs);
 
@@ -56,43 +84,6 @@ setClubs(savedClubs);
       });
     });
 
-    // Join Buttons
-
-    const joinButtons =
-      document.querySelectorAll(".join-btn");
-
-    joinButtons.forEach((button) => {
-      const card = button.closest(".club-card");
-
-      const clubName =
-        card.querySelector("h3").textContent;
-
-      if (joinedClubs.includes(clubName)) {
-        button.textContent = "✓ Joined";
-        button.style.background = "#16a34a";
-      }
-
-      button.addEventListener("click", () => {
-        if (joinedClubs.includes(clubName)) {
-          alert("You have already joined this club.");
-          return;
-        }
-
-        joinedClubs.push(clubName);
-
-        localStorage.setItem(
-          clubKey,
-          JSON.stringify(joinedClubs)
-        );
-
-        button.textContent = "✓ Joined";
-        button.style.background = "#16a34a";
-
-        updateCounter();
-
-        alert("Successfully joined " + clubName);
-      });
-    });
   }, [navigate]);
 
   return (
@@ -241,8 +232,11 @@ className="details-btn"
 View Club
 </Link>
 
-<button className="join-btn">
-Join
+<button
+  className="join-btn"
+  onClick={() => joinClub(club.name)}
+>
+  Join
 </button>
 
 </div>

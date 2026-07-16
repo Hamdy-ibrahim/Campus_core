@@ -267,18 +267,6 @@ http://localhost:5173
 
 ---
 
-# 🔑 Login Information
-
-## Administrator
-
-Create an administrator account using the Admin Sign Up page or use the credentials configured during testing.
-
-## Student
-
-Create a student account through the Sign Up page.
-
----
-
 # 📌 System Workflow
 
 ### Student

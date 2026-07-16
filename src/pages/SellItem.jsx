@@ -39,7 +39,9 @@ description,
 
 emoji,
 
-seller: currentUser.fullname
+seller: currentUser.fullname,
+
+sellerEmail: currentUser.email
 
 };
 

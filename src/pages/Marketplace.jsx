@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
 import "../styles/shared.css";
+import SellItem from "./SellItem";
 
 function Marketplace() {
 
@@ -35,6 +36,7 @@ title:"Dell Latitude Laptop",
 category:"Electronics",
 price:45000,
 seller:"Brian",
+SellerEmail:"brian@strathmore.edu",
 description:"Core i7 • 16GB RAM • 512GB SSD"
 },
 
@@ -45,6 +47,7 @@ title:"Java Programming Book",
 category:"Books",
 price:1200,
 seller:"Mary",
+SellerEmail:"mary@strathmore.edu",
 description:"Excellent condition."
 },
 
@@ -55,6 +58,7 @@ title:"Study Chair",
 category:"Furniture",
 price:3500,
 seller:"Kevin",
+SellerEmail:"kevin@strathmore.edu",
 description:"Comfortable wooden chair."
 },
 
@@ -65,6 +69,7 @@ title:"Wireless Headphones",
 category:"Electronics",
 price:5000,
 seller:"Sarah",
+SellerEmail:"sarah@strathmore.edu",
 description:"Noise cancelling."
 }
 
