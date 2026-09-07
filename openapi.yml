@@ -1,0 +1,243 @@
+openapi: 3.0.0
+
+info:
+  title: CampusCore FitCoach Integration API
+  version: 1.0.0
+  description: API contract bridging CampusCore identity, events, clubs, announcements, and marketplace data with the FitCoach platform.
+
+paths:
+  /fitcoach-users/{fitcoach_userId}/profile:
+    get:
+      summary: Return a specific student's core profile information
+      parameters:
+        - name: fitcoach_userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+            example: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+      responses:
+        '200':
+          description: Successfully retrieved student core profile information
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [student_id, first_name, last_name, email]
+                properties:
+                  student_id:
+                    type: string
+                    format: uuid
+                    example: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+                  first_name:
+                    type: string
+                    example: "Jane"
+                  last_name:
+                    type: string
+                    example: "Doe"
+                  email:
+                    type: string
+                    format: email
+                    example: "jane.doe@university.edu"
+                  major:
+                    type: string
+                    example: "Computer Science"
+
+  /fitcoach-users/{fitcoach_userId}/fitcoach-bindings:
+    post:
+      summary: Create a linkage between a student's CampusCore identity and FitCoach account
+      parameters:
+        - name: fitcoach_userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+            example: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [campuscore_student_id, verification_token]
+              properties:
+                campuscore_student_id:
+                  type: string
+                  format: uuid
+                  example: "cb81a423-bc92-49da-a2f0-e593ee1ba123"
+                verification_token:
+                  type: string
+                  example: "v7x_9281a_bnd"
+      responses:
+        '201':
+          description: Binding successfully created
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [binding_id, status, bound_at]
+                properties:
+                  binding_id:
+                    type: string
+                    format: uuid
+                    example: "71a9b234-92bc-41de-81ff-a320c1e84321"
+                  status:
+                    type: string
+                    enum: [active, pending, suspended]
+                    example: "active"
+                  bound_at:
+                    type: string
+                    format: date-time
+                    example: "2026-09-07T08:30:00Z"
+
+  /events:
+    get:
+      summary: Return a list of campus event information
+      responses:
+        '200':
+          description: A comprehensive list of upcoming campus events
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [events]
+                properties:
+                  events:
+                    type: array
+                    items:
+                      type: object
+                      required: [event_id, title, location, start_time]
+                      properties:
+                        event_id:
+                          type: string
+                          format: uuid
+                          example: "e82b7100-1cda-4bb3-8991-82bf2f386b22"
+                        title:
+                          type: string
+                          example: "Intramural 5K Campus Run"
+                        description:
+                          type: string
+                          example: "Join the annual track run starting at the main stadium gates."
+                        location:
+                          type: string
+                          example: "University Stadium Track"
+                        start_time:
+                          type: string
+                          format: date-time
+                          example: "2026-09-15T16:00:00Z"
+                        end_time:
+                          type: string
+                          format: date-time
+                          example: "2026-09-15T18:00:00Z"
+
+  /clubs:
+    get:
+      summary: Return a list of available campus club information
+      responses:
+        '200':
+          description: A list of active registered campus clubs
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [clubs]
+                properties:
+                  clubs:
+                    type: array
+                    items:
+                      type: object
+                      required: [club_id, name, category]
+                      properties:
+                        club_id:
+                          type: string
+                          format: uuid
+                          example: "c402b811-2d33-4e44-9f88-12ab34cd56ef"
+                        name:
+                          type: string
+                          example: "Campus Running and Athletics Club"
+                        category:
+                          type: string
+                          example: "Sports & Recreation"
+                        contact_email:
+                          type: string
+                          format: email
+                          example: "runclub@university.edu"
+
+  /announcements:
+    get:
+      summary: Return a list of campus announcements and updates
+      responses:
+        '200':
+          description: A timeline list of recent campus announcements
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [announcements]
+                properties:
+                  announcements:
+                    type: array
+                    items:
+                      type: object
+                      required: [announcement_id, headline, published_at]
+                      properties:
+                        announcement_id:
+                          type: string
+                          format: uuid
+                          example: "a111b222-3333-4444-5555-666677778888"
+                        headline:
+                          type: string
+                          example: "Gymnasium Renovation and Modified Fall Hours"
+                        content:
+                          type: string
+                          example: "The main campus gym will be closed for floor resurfacing."
+                        published_at:
+                          type: string
+                          format: date-time
+                          example: "2026-09-06T09:15:00Z"
+
+  /marketplace/listings:
+    get:
+      summary: Return active marketplace listings including their prices
+      parameters:
+        - name: status
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [active]
+            example: "active"
+      responses:
+        '200':
+          description: A list of filtered marketplace items matching the status parameter
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [listings]
+                properties:
+                  listings:
+                    type: array
+                    items:
+                      type: object
+                      required: [listing_id, item_name, price, currency]
+                      properties:
+                        listing_id:
+                          type: string
+                          format: uuid
+                          example: "m9876543-21ba-43fe-bcba-1234567890ab"
+                        item_name:
+                          type: string
+                          example: "Slightly Used Ergonomic Yoga Mat"
+                        description:
+                          type: string
+                          example: "High density foam mat, perfect condition."
+                        price:
+                          type: number
+                          format: float
+                          example: 24.99
+                        currency:
+                          type: string
+                          example: "USD"
