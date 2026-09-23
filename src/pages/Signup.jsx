@@ -26,7 +26,7 @@ function Signup() {
     });
   }
 
-  function handleSubmit(e) {
+    async function handleSubmit(e) {
 
     e.preventDefault();
 
@@ -69,27 +69,26 @@ function Signup() {
       password: form.password
     };
 
-    let users = JSON.parse(localStorage.getItem("users")) || [];
+        try {
+      const res = await fetch("http://localhost:5000/api/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(student)
+      });
 
-    const existingUser = users.find(
-      user => user.email === student.email
-    );
+      const data = await res.json();
 
-    if (existingUser) {
-      alert("An account with this email already exists.");
-      return;
+      if (!res.ok) {
+        alert(data.error || "Signup failed. Please try again.");
+        return;
+      }
+
+      alert("Account created successfully!");
+      navigate("/login");
+
+    } catch (err) {
+      alert("Could not reach the server. Is the backend running?");
     }
-
-    users.push(student);
-
-    localStorage.setItem(
-      "users",
-      JSON.stringify(users)
-    );
-
-    alert("Account created successfully!");
-
-    navigate("/login");
 
   }
 
