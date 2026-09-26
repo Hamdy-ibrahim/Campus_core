@@ -5,241 +5,249 @@ import "../styles/shared.css";
 
 function ItemDetails() {
 
-const { id } = useParams();
+  const { id } = useParams();
+  const navigate = useNavigate();
 
-const navigate = useNavigate();
+  const [item, setItem] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-const [item, setItem] = useState(null);
+  useEffect(() => {
 
-useEffect(() => {
+    fetch(`http://localhost:5000/api/marketplace/${id}`)
+      .then(res => {
 
-const items = JSON.parse(
-localStorage.getItem("marketplaceItems")
-) || [];
+        if (!res.ok) {
+          throw new Error("Item not found");
+        }
 
-const selected = items.find(
-item => item.id === Number(id)
-);
+        return res.json();
 
-setItem(selected);
+      })
+      .then(data => {
 
-}, [id]);
+        setItem(data);
+        setLoading(false);
 
-if(!item){
+      })
+      .catch(err => {
 
-return(
+        console.error(err);
+        setItem(null);
+        setLoading(false);
 
-<div className="dashboard">
+      });
 
-<Sidebar/>
+  }, [id]);
 
-<main className="main-content">
+  // Loading state
+  if (loading) {
 
-<h2>Item not found.</h2>
+    return (
+      <div className="dashboard">
 
-<button
-className="back-btn"
-onClick={()=>navigate("/marketplace")}
->
+        <Sidebar />
 
-← Back
+        <main className="main-content">
 
-</button>
+          <h2>Loading item...</h2>
 
-</main>
+        </main>
 
-</div>
+      </div>
+    );
 
-);
+  }
 
-}
+  // Item not found
+  if (!item) {
 
-return(
+    return (
+      <div className="dashboard">
 
-<div className="dashboard">
+        <Sidebar />
 
-<Sidebar/>
+        <main className="main-content">
 
-<main className="main-content">
+          <h2>Item not found.</h2>
 
-<button
-className="back-btn"
-onClick={()=>navigate("/marketplace")}
->
+          <button
+            className="back-btn"
+            onClick={() => navigate("/marketplace")}
+          >
+            ← Back
+          </button>
 
-← Back to Marketplace
+        </main>
 
-</button>
+      </div>
+    );
 
-<div className="club-header">
+  }
 
-<div>
+  return (
 
-<div
-style={{
-fontSize:"80px",
-marginBottom:"15px"
-}}
->
+    <div className="dashboard">
 
-{item.emoji}
+      <Sidebar />
 
-</div>
+      <main className="main-content">
 
-<h1>
+        <button
+          className="back-btn"
+          onClick={() => navigate("/marketplace")}
+        >
+          ← Back to Marketplace
+        </button>
 
-{item.title}
+        <div className="club-header">
 
-</h1>
+          <div>
 
-<p>
+            <div
+              style={{
+                fontSize: "80px",
+                marginBottom: "15px"
+              }}
+            >
+              {item.emoji}
+            </div>
 
-{item.description}
+            <h1>{item.title}</h1>
 
-</p>
+            <p>
+              {item.description}
+            </p>
 
-</div>
+          </div>
 
-<h1
-style={{
-color:"#2563eb"
-}}
->
+          <h1
+            style={{
+              color: "#2563eb"
+            }}
+          >
+            KES {Number(item.price).toLocaleString()}
+          </h1>
 
-KES {item.price}
+        </div>
 
-</h1>
+        <div className="club-stats">
 
-</div>
+          <div>
 
-<div className="club-stats">
+            <h2>
+              {item.category}
+            </h2>
 
-<div>
+            <p>
+              Category
+            </p>
 
-<h2>
+          </div>
 
-{item.category}
+          <div>
 
-</h2>
+            <h2>
+              {item.seller}
+            </h2>
 
-<p>Category</p>
+            <p>
+              Seller
+            </p>
 
-</div>
+          </div>
 
-<div>
+          <div>
 
-<h2>
+            <h2>
+              Available
+            </h2>
 
-{item.seller}
+            <p>
+              Status
+            </p>
 
-</h2>
+          </div>
 
-<p>Seller</p>
+          <div>
 
-</div>
+            <h2>
+              CampusCore
+            </h2>
 
-<div>
+            <p>
+              Marketplace
+            </p>
 
-<h2>
+          </div>
 
-Available
+        </div>
 
-</h2>
+        <div className="details-grid">
 
-<p>Status</p>
+          <div>
 
-</div>
+            <div className="detail-card">
 
-<div>
+              <h2>
+                📝 Description
+              </h2>
 
-<h2>
+              <p>
+                {item.description}
+              </p>
 
-CampusCore
+            </div>
 
-</h2>
+          </div>
 
-<p>Marketplace</p>
+          <div>
 
-</div>
+            <div className="detail-card">
 
-</div>
+              <h2>
+                👤 Seller Information
+              </h2>
 
-<div className="details-grid">
+              <p>
+                <strong>Name:</strong>{" "}
+                {item.seller}
+              </p>
 
-<div>
+              <p>
+                <strong>Category:</strong>{" "}
+                {item.category}
+              </p>
 
-<div className="detail-card">
+              <p>
+                <strong>Price:</strong>{" "}
+                KES {Number(item.price).toLocaleString()}
+              </p>
 
-<h2>
+              <a
+                href={`mailto:${item.sellerEmail}`}
+                className="register-btn"
+                style={{
+                  marginTop: "20px",
+                  width: "100%",
+                  display: "block",
+                  textAlign: "center",
+                  textDecoration: "none"
+                }}
+              >
+                Contact Seller
+              </a>
 
-📝 Description
+            </div>
 
-</h2>
+          </div>
 
-<p>
+        </div>
 
-{item.description}
+      </main>
 
-</p>
+    </div>
 
-</div>
-
-</div>
-
-<div>
-
-<div className="detail-card">
-
-<h2>
-
-👤 Seller Information
-
-</h2>
-
-<p>
-
-<strong>Name:</strong> {item.seller}
-
-</p>
-
-<p>
-
-<strong>Category:</strong> {item.category}
-
-</p>
-
-<p>
-
-<strong>Price:</strong> KES {item.price}
-
-</p>
-
-<a
-  href={`mailto:${item.sellerEmail}`}
-  className="register-btn"
-  style={{
-    marginTop: "20px",
-    width: "100%",
-    display: "block",
-    textAlign: "center",
-    textDecoration: "none"
-  }}
->
-  Contact Seller
-</a>
-
-</div>
-
-</div>
-
-</div>
-
-</main>
-
-</div>
-
-);
-
+  );
 }
 
 export default ItemDetails;

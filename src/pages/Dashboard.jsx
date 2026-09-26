@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import Sidebar from "../components/Sidebar";
 import "../styles/dashboard.css";
@@ -8,13 +8,21 @@ function Dashboard() {
   const navigate = useNavigate();
 
   const [user, setUser] = useState(null);
+
   const [clubCount, setClubCount] = useState(0);
+
   const [eventCount, setEventCount] = useState(0);
+
   const [greeting, setGreeting] = useState("");
+
   const [marketCount, setMarketCount] = useState(0);
+
   const [announcementCount, setAnnouncementCount] = useState(0);
+
   const [announcements, setAnnouncements] = useState([]);
+
   const [events, setEvents] = useState([]);
+
 
   useEffect(() => {
 
@@ -34,73 +42,151 @@ function Dashboard() {
 
     setUser(currentUser);
 
-   // Student joined clubs
-const joinedClubs =
-JSON.parse(
-localStorage.getItem(
-"joinedClubs_" + currentUser.email
-)
-) || [];
 
-// All clubs created by admin
-const allClubs =
-JSON.parse(localStorage.getItem("clubs")) || [];
+    // ================================
+    // LOAD CLUB MEMBERSHIPS
+    // ================================
 
-// Remove deleted clubs
-const validJoinedClubs = joinedClubs.filter(joinedClub =>
-allClubs.some(club => club.name === joinedClub)
-);
+    fetch(
+      `http://localhost:5000/api/clubs/memberships/user/${currentUser.id}`
+    )
+      .then(res => {
 
-localStorage.setItem(
-"joinedClubs_" + currentUser.email,
-JSON.stringify(validJoinedClubs)
-);
+        if (!res.ok) {
+          throw new Error(
+            "Failed to load club memberships"
+          );
+        }
 
-setClubCount(validJoinedClubs.length);
+        return res.json();
 
-// Student registered events
-const registeredEvents =
-JSON.parse(
-localStorage.getItem(
-"registeredEvents_" + currentUser.email
-)
-) || [];
+      })
+      .then(data => {
 
-// All events from admin
-const allEvents =
-JSON.parse(localStorage.getItem("events")) || [];
+        setClubCount(data.length);
 
-// Remove deleted events
-const validEvents = registeredEvents.filter(event =>
-allEvents.some(e => e.title === event)
-);
+      })
+      .catch(err => {
 
-localStorage.setItem(
-"registeredEvents_" + currentUser.email,
-JSON.stringify(validEvents)
-);
+        console.error(
+          "Failed to load club memberships:",
+          err
+        );
 
-setEvents(validEvents);
-
-setEventCount(validEvents.length);
+      });
 
 
+    // ================================
+    // LOAD EVENT REGISTRATIONS
+    // ================================
 
-const items = JSON.parse(
-localStorage.getItem("marketplaceItems")
-) || [];
+    fetch(
+      `http://localhost:5000/api/events/registrations/user/${currentUser.id}`
+    )
+      .then(res => {
 
-setMarketCount(items.length);
+        if (!res.ok) {
+          throw new Error(
+            "Failed to load event registrations"
+          );
+        }
 
-const savedAnnouncements = JSON.parse(
-  localStorage.getItem("announcements")
-) || [];
+        return res.json();
 
-setAnnouncements(savedAnnouncements);
+      })
+      .then(data => {
 
-setAnnouncementCount(savedAnnouncements.length);
+        setEventCount(data.length);
 
-    const hour = new Date().getHours();
+        setEvents(data);
+
+      })
+      .catch(err => {
+
+        console.error(
+          "Failed to load event registrations:",
+          err
+        );
+
+      });
+
+
+    // ================================
+    // LOAD MARKETPLACE
+    // ================================
+
+    fetch(
+      "http://localhost:5000/api/marketplace"
+    )
+      .then(res => {
+
+        if (!res.ok) {
+          throw new Error(
+            "Failed to load marketplace"
+          );
+        }
+
+        return res.json();
+
+      })
+      .then(data => {
+
+        setMarketCount(data.length);
+
+      })
+      .catch(err => {
+
+        console.error(
+          "Failed to load marketplace:",
+          err
+        );
+
+      });
+
+
+    // ================================
+    // LOAD ANNOUNCEMENTS
+    // ================================
+
+    fetch(
+      "http://localhost:5000/api/announcements"
+    )
+      .then(res => {
+
+        if (!res.ok) {
+          throw new Error(
+            "Failed to load announcements"
+          );
+        }
+
+        return res.json();
+
+      })
+      .then(data => {
+
+        setAnnouncements(data);
+
+        setAnnouncementCount(
+          data.length
+        );
+
+      })
+      .catch(err => {
+
+        console.error(
+          "Failed to load announcements:",
+          err
+        );
+
+      });
+
+
+    // ================================
+    // GREETING
+    // ================================
+
+    const hour =
+      new Date().getHours();
 
     if (hour < 12) {
 
@@ -118,199 +204,272 @@ setAnnouncementCount(savedAnnouncements.length);
 
   }, [navigate]);
 
-  function logout() {
-
-    localStorage.removeItem("loggedInUser");
-
-    navigate("/login");
-
-  }
 
   if (!user) return null;
 
+
   return (
 
-<div className="dashboard">
+    <div className="dashboard">
 
-{/* SIDEBAR */}
 
-<Sidebar />
+      {/* SIDEBAR */}
 
-{/* MAIN */}
+      <Sidebar />
 
-<main className="main-content">
 
-<div className="dashboard-header">
+      {/* MAIN */}
 
-<div>
+      <main className="main-content">
 
-<h1>
 
-{greeting}, {user.fullname} 👋
+        <div className="dashboard-header">
 
-</h1>
+          <div>
 
-<p>
+            <h1>
 
-Ready for another productive day on campus?
+              {greeting}, {user.fullname} 👋
 
-</p>
+            </h1>
 
-</div>
+            <p>
 
-</div>
+              Ready for another productive day on campus?
 
-<h2 className="dashboard-title">
+            </p>
 
-Today's Overview
+          </div>
 
-</h2>
+        </div>
 
-<div className="dashboard-cards">
 
-<div
-className="dashboard-card"
-onClick={()=>navigate("/clubs")}
->
+        <h2 className="dashboard-title">
 
-<i className="fa-solid fa-users"></i>
+          Today's Overview
 
-<h3>My Clubs</h3>
+        </h2>
 
-<h1>{clubCount}</h1>
 
-</div>
+        <div className="dashboard-cards">
 
-<div
-className="dashboard-card"
-onClick={()=>navigate("/events")}
->
 
-<i className="fa-solid fa-calendar-days"></i>
+          {/* CLUBS */}
 
-<h3>Events</h3>
+          <div
+            className="dashboard-card"
+            onClick={() =>
+              navigate("/clubs")
+            }
+          >
 
-<h1>{eventCount}</h1>
+            <i className="fa-solid fa-users"></i>
 
-</div>
+            <h3>
+              My Clubs
+            </h3>
 
-<div className="dashboard-card">
+            <h1>
+              {clubCount}
+            </h1>
 
-<i className="fa-solid fa-store"></i>
+          </div>
 
-<h3>Marketplace</h3>
 
-<h1>{marketCount}</h1>
+          {/* EVENTS */}
 
-</div>
+          <div
+            className="dashboard-card"
+            onClick={() =>
+              navigate("/events")
+            }
+          >
 
-<div className="dashboard-card">
+            <i className="fa-solid fa-calendar-days"></i>
 
-<i className="fa-solid fa-bullhorn"></i>
+            <h3>
+              Events
+            </h3>
 
-<h3>Announcements</h3>
+            <h1>
+              {eventCount}
+            </h1>
 
-<h1>{announcementCount}</h1>
+          </div>
 
-</div>
 
-</div>
+          {/* MARKETPLACE */}
 
-<div className="dashboard-grid">
+          <div className="dashboard-card">
 
-<div className="recent">
+            <i className="fa-solid fa-store"></i>
 
-<h2>📅 Upcoming Events</h2>
+            <h3>
+              Marketplace
+            </h3>
 
-<ul>
+            <h1>
+              {marketCount}
+            </h1>
 
-{eventCount === 0 ? (
+          </div>
 
-<li>No upcoming events registered.</li>
 
-) : (
+          {/* ANNOUNCEMENTS */}
 
-events.map((event,index)=>(
+          <div className="dashboard-card">
 
-<li key={index}>
- {event}
-</li>
+            <i className="fa-solid fa-bullhorn"></i>
 
-))
+            <h3>
+              Announcements
+            </h3>
 
-)}
+            <h1>
+              {announcementCount}
+            </h1>
 
-</ul>
+          </div>
 
-</div>
 
-<div className="recent">
+        </div>
 
-<h2>📢 Latest Announcements</h2>
 
-<ul>
+        <div className="dashboard-grid">
 
-{announcements.length === 0 ? (
 
-    <li>No announcements available.</li>
+          {/* UPCOMING EVENTS */}
 
-) : (
+          <div className="recent">
 
-    announcements.slice(0,5).map((announcement,index)=>(
+            <h2>
+              📅 Upcoming Events
+            </h2>
 
-        <li key={index}>
+            <ul>
 
-            📢 {announcement.title}
+              {eventCount === 0 ? (
 
-        </li>
+                <li>
+                  No upcoming events registered.
+                </li>
 
-    ))
+              ) : (
 
-)}
+                events.map((event) => (
 
-</ul>
+                  <li
+                    key={event.eventId}
+                  >
+                    {event.title}
+                  </li>
 
-</div>
+                ))
 
-</div>
+              )}
 
-<div className="recent">
+            </ul>
 
-<h2>⚡ Quick Actions</h2>
+          </div>
 
-<div className="quick-actions">
 
-<button onClick={()=>navigate("/clubs")}>
+          {/* LATEST ANNOUNCEMENTS */}
 
-Browse Clubs
+          <div className="recent">
 
-</button>
+            <h2>
+              📢 Latest Announcements
+            </h2>
 
-<button onClick={()=>navigate("/events")}>
+            <ul>
 
-View Events
+              {announcements.length === 0 ? (
 
-</button>
+                <li>
+                  No announcements available.
+                </li>
 
-<button onClick={()=>navigate("/profile")}>
+              ) : (
 
-My Profile
+                announcements
+                  .slice(0, 5)
+                  .map(announcement => (
 
-</button>
+                    <li
+                      key={announcement.id}
+                    >
 
-<button onClick={()=>navigate("/marketplace")}>
+                      📢 {announcement.title}
 
-Marketplace
+                    </li>
 
-</button>
+                  ))
 
-</div>
+              )}
 
-</div>
+            </ul>
 
-</main>
+          </div>
 
-</div>
+
+        </div>
+
+
+        {/* QUICK ACTIONS */}
+
+        <div className="recent">
+
+          <h2>
+            ⚡ Quick Actions
+          </h2>
+
+          <div className="quick-actions">
+
+
+            <button
+              onClick={() =>
+                navigate("/clubs")
+              }
+            >
+              Browse Clubs
+            </button>
+
+
+            <button
+              onClick={() =>
+                navigate("/events")
+              }
+            >
+              View Events
+            </button>
+
+
+            <button
+              onClick={() =>
+                navigate("/profile")
+              }
+            >
+              My Profile
+            </button>
+
+
+            <button
+              onClick={() =>
+                navigate("/marketplace")
+              }
+            >
+              Marketplace
+            </button>
+
+
+          </div>
+
+        </div>
+
+
+      </main>
+
+    </div>
 
   );
 

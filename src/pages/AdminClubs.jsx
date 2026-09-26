@@ -4,348 +4,395 @@ import "../styles/admin.css";
 
 function AdminClubs() {
 
+  const emptyClub = {
+    name: "",
+    category: "",
+    description: "",
+    members: "",
+    meeting: "",
+    venue: "",
+    president: "",
+    vicePresident: "",
+    secretary: "",
+    founded: "",
+    projects: "",
+    rating: "",
+    requirements: "",
+    activities: ""
+  };
+
+
   const [clubs, setClubs] = useState([]);
 
-  const [newClub, setNewClub] = useState({
-  name: "",
-  category: "",
-  description: "",
-  members: "",
-  meeting: "",
-  venue: "",
-  president: "",
-  vicePresident: "",
-  secretary: "",
-  founded: "",
-  projects: "",
-  rating: "",
-  requirements: "",
-  activities: ""
-});
+  const [newClub, setNewClub] = useState(emptyClub);
 
+
+  // Load clubs from MySQL
   useEffect(() => {
 
-    const saved =
-JSON.parse(localStorage.getItem("clubs")) || [];
+    async function fetchClubs() {
 
-    localStorage.setItem(
-      "clubs",
-      JSON.stringify(saved)
-    );
+      try {
 
-    setClubs(saved);
+        const response = await fetch(
+          "http://localhost:5000/api/clubs"
+        );
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch clubs");
+        }
+
+        const data = await response.json();
+
+        setClubs(data);
+
+      } catch (error) {
+
+        console.error(error);
+
+        alert("Could not load clubs from the server.");
+
+      }
+
+    }
+
+    fetchClubs();
 
   }, []);
 
-  function addClub(){
 
-    if(!newClub.name || !newClub.category){
+  // Handle form changes
+  function handleChange(e) {
 
-      alert("Fill all fields.");
+    setNewClub({
+      ...newClub,
+      [e.target.name]: e.target.value
+    });
+
+  }
+
+
+  // Add club to MySQL
+  async function addClub() {
+
+    if (!newClub.name || !newClub.category) {
+
+      alert("Club name and category are required.");
 
       return;
 
     }
 
-    const updated=[
 
-      ...clubs,
+    try {
 
-      {
-        id:Date.now(),
-        ...newClub
+      const response = await fetch(
+        "http://localhost:5000/api/clubs",
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type": "application/json"
+          },
+
+          body: JSON.stringify(newClub)
+        }
+      );
+
+
+      const data = await response.json();
+
+
+      if (!response.ok) {
+
+        alert(data.error || "Failed to add club.");
+
+        return;
+
       }
 
-    ];
 
-    setClubs(updated);
+      setClubs([
+        ...clubs,
+        data
+      ]);
 
-    localStorage.setItem(
-      "clubs",
-      JSON.stringify(updated)
-    );
 
-    setNewClub({
-name:"",
-category:"",
-description:"",
-members:"",
-meeting:"",
-venue:"",
-president:"",
-vicePresident:"",
-secretary:"",
-founded:"",
-projects:"",
-rating:"",
-requirements:"",
-activities:""
-});
+      setNewClub(emptyClub);
+
+      alert("Club added successfully!");
+
+    } catch (error) {
+
+      console.error(error);
+
+      alert("Could not reach the server.");
+
+    }
 
   }
 
-  function deleteClub(id){
 
-    if(!window.confirm("Delete this club?")) return;
+  // Delete club from MySQL
+  async function deleteClub(id) {
 
-    const updated=clubs.filter(
-      club=>club.id!==id
-    );
+    if (!window.confirm("Delete this club?")) {
+      return;
+    }
 
-    setClubs(updated);
 
-    localStorage.setItem(
-      "clubs",
-      JSON.stringify(updated)
-    );
+    try {
+
+      const response = await fetch(
+        `http://localhost:5000/api/clubs/${id}`,
+        {
+          method: "DELETE"
+        }
+      );
+
+
+      const data = await response.json();
+
+
+      if (!response.ok) {
+
+        alert(data.error || "Failed to delete club.");
+
+        return;
+
+      }
+
+
+      setClubs(
+        clubs.filter(club => club.id !== id)
+      );
+
+
+      alert("Club deleted successfully!");
+
+    } catch (error) {
+
+      console.error(error);
+
+      alert("Could not reach the server.");
+
+    }
 
   }
 
-  return(
+
+  return (
+
+    <div className="admin-page">
+
+      <AdminSidebar />
+
+      <div className="admin-content">
+
+        <h1>Club Management</h1>
 
 
-<div className="admin-page">
+        <div className="admin-form">
 
-    <AdminSidebar />
 
-<div className="admin-content">
+          <input
+            type="text"
+            name="name"
+            placeholder="Club Name"
+            value={newClub.name}
+            onChange={handleChange}
+          />
 
-<h1>Club Management</h1>
 
-<div className="admin-form">
+          <select
+            name="category"
+            value={newClub.category}
+            onChange={handleChange}
+          >
 
-<input
-type="text"
-placeholder="Club Name"
-value={newClub.name}
-onChange={(e)=>
-setNewClub({
-...newClub,
-name:e.target.value
-})
-}
-/>
+            <option value="">
+              Category
+            </option>
 
-<select
-value={newClub.category}
-onChange={(e)=>
-setNewClub({
-...newClub,
-category:e.target.value
-})
-}
->
+            <option>Academic</option>
+            <option>Technology</option>
+            <option>Sports</option>
+            <option>Entertainment</option>
+            <option>Leadership</option>
 
-<option value="">Category</option>
-<option>Academic</option>
-<option>Technology</option>
-<option>Sports</option>
-<option>Entertainment</option>
-<option>Leadership</option>
+          </select>
 
-</select>
 
-<textarea
-placeholder="Description"
-value={newClub.description}
-onChange={(e)=>
-setNewClub({
-...newClub,
-description:e.target.value
-})
-}
-/>
+          <textarea
+            name="description"
+            placeholder="Description"
+            value={newClub.description}
+            onChange={handleChange}
+          />
 
-<input
-type="text"
-placeholder="Members (e.g. 145 Members)"
-value={newClub.members}
-onChange={(e)=>
-setNewClub({
-...newClub,
-members:e.target.value
-})
-}
-/>
 
-<input
-type="text"
-placeholder="Meeting Day"
-value={newClub.meeting}
-onChange={(e)=>
-setNewClub({
-...newClub,
-meeting:e.target.value
-})
-}
-/>
+          <input
+            type="text"
+            name="members"
+            placeholder="Members (e.g. 145 Members)"
+            value={newClub.members}
+            onChange={handleChange}
+          />
 
-<input
-type="text"
-placeholder="Venue"
-value={newClub.venue}
-onChange={(e)=>
-setNewClub({
-...newClub,
-venue:e.target.value
-})
-}
-/>
 
-<input
-type="text"
-placeholder="President"
-value={newClub.president}
-onChange={(e)=>
-setNewClub({
-...newClub,
-president:e.target.value
-})
-}
-/>
+          <input
+            type="text"
+            name="meeting"
+            placeholder="Meeting Day"
+            value={newClub.meeting}
+            onChange={handleChange}
+          />
 
-<input
-type="text"
-placeholder="Vice President"
-value={newClub.vicePresident}
-onChange={(e)=>
-setNewClub({
-...newClub,
-vicePresident:e.target.value
-})
-}
-/>
 
-<input
-type="text"
-placeholder="Secretary"
-value={newClub.secretary}
-onChange={(e)=>
-setNewClub({
-...newClub,
-secretary:e.target.value
-})
-}
-/>
+          <input
+            type="text"
+            name="venue"
+            placeholder="Venue"
+            value={newClub.venue}
+            onChange={handleChange}
+          />
 
-<input
-type="text"
-placeholder="Founded Year"
-value={newClub.founded}
-onChange={(e)=>
-setNewClub({
-...newClub,
-founded:e.target.value
-})
-}
-/>
 
-<input
-type="text"
-placeholder="Projects Completed"
-value={newClub.projects}
-onChange={(e)=>
-setNewClub({
-...newClub,
-projects:e.target.value
-})
-}
-/>
+          <input
+            type="text"
+            name="president"
+            placeholder="President"
+            value={newClub.president}
+            onChange={handleChange}
+          />
 
-<input
-type="text"
-placeholder="Club Rating (e.g. 4.9)"
-value={newClub.rating}
-onChange={(e)=>
-setNewClub({
-...newClub,
-rating:e.target.value
-})
-}
-/>
 
-<textarea
-placeholder="Membership Requirements"
-value={newClub.requirements}
-onChange={(e)=>
-setNewClub({
-...newClub,
-requirements:e.target.value
-})
-}
-/>
+          <input
+            type="text"
+            name="vicePresident"
+            placeholder="Vice President"
+            value={newClub.vicePresident}
+            onChange={handleChange}
+          />
 
-<input
-type="text"
-placeholder="Activities (comma separated)"
-value={newClub.activities}
-onChange={(e)=>
-setNewClub({
-...newClub,
-activities:e.target.value
-})
-}
-/>
 
-<button onClick={addClub}>
-Add Club
-</button>
+          <input
+            type="text"
+            name="secretary"
+            placeholder="Secretary"
+            value={newClub.secretary}
+            onChange={handleChange}
+          />
 
-</div>
 
-<table className="admin-table">
+          <input
+            type="text"
+            name="founded"
+            placeholder="Founded Year"
+            value={newClub.founded}
+            onChange={handleChange}
+          />
 
-<thead>
 
-<tr>
+          <input
+            type="text"
+            name="projects"
+            placeholder="Projects Completed"
+            value={newClub.projects}
+            onChange={handleChange}
+          />
 
-<th>Name</th>
 
-<th>Category</th>
+          <input
+            type="text"
+            name="rating"
+            placeholder="Club Rating (e.g. 4.9)"
+            value={newClub.rating}
+            onChange={handleChange}
+          />
 
-<th>Action</th>
 
-</tr>
+          <textarea
+            name="requirements"
+            placeholder="Membership Requirements"
+            value={newClub.requirements}
+            onChange={handleChange}
+          />
 
-</thead>
 
-<tbody>
+          <input
+            type="text"
+            name="activities"
+            placeholder="Activities (comma separated)"
+            value={newClub.activities}
+            onChange={handleChange}
+          />
 
-{clubs.map((club)=>(
 
-<tr key={club.id}>
+          <button onClick={addClub}>
+            Add Club
+          </button>
 
-<td>{club.name}</td>
+        </div>
 
-<td>{club.category}</td>
 
-<td>
+        <table className="admin-table">
 
-<button
-className="delete-btn"
-onClick={()=>deleteClub(club.id)}
->
+          <thead>
 
-Delete
+            <tr>
 
-</button>
+              <th>Name</th>
+              <th>Category</th>
+              <th>Action</th>
 
-</td>
+            </tr>
 
-</tr>
+          </thead>
 
-))}
 
-</tbody>
+          <tbody>
 
-</table>
+            {clubs.map((club) => (
 
-</div>
+              <tr key={club.id}>
 
-</div>
+                <td>
+                  {club.name}
+                </td>
+
+                <td>
+                  {club.category}
+                </td>
+
+                <td>
+
+                  <button
+                    className="delete-btn"
+                    onClick={() =>
+                      deleteClub(club.id)
+                    }
+                  >
+                    Delete
+                  </button>
+
+                </td>
+
+              </tr>
+
+            ))}
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    </div>
 
   );
 
 }
 
 export default AdminClubs;
+

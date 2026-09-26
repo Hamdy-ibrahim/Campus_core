@@ -4,59 +4,76 @@ import "../styles/admin.css";
 
 function AdminAnnouncements() {
 
-  const [announcements, setAnnouncements] = useState([]);
-
-  const [newAnnouncement, setNewAnnouncement] = useState({
+  const emptyAnnouncement = {
     title: "",
     category: "",
     description: "",
     date: "",
     priority: ""
-  });
+  };
 
+  const [announcements, setAnnouncements] = useState([]);
+  const [newAnnouncement, setNewAnnouncement] =
+    useState(emptyAnnouncement);
+
+
+  // GET announcements from API
   useEffect(() => {
 
-    const saved =
-      JSON.parse(localStorage.getItem("announcements")) || [
+    async function fetchAnnouncements() {
 
-        {
-          id:1,
-          title:"Semester Registration",
-          category:"Academic",
-          description:"Semester registration closes this Friday.",
-          date:"20 July 2026",
-          priority:"High"
-        },
+      try {
 
-        {
-          id:2,
-          title:"Innovation Fair",
-          category:"Events",
-          description:"Students are invited to showcase projects.",
-          date:"25 July 2026",
-          priority:"Medium"
+        const response = await fetch(
+          "http://localhost:5000/api/announcements"
+        );
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch announcements");
         }
 
-      ];
+        const data = await response.json();
 
-    localStorage.setItem(
-      "announcements",
-      JSON.stringify(saved)
-    );
+        setAnnouncements(data);
 
-    setAnnouncements(saved);
+      } catch (error) {
+
+        console.error(error);
+
+        alert(
+          "Could not load announcements from the server."
+        );
+
+      }
+
+    }
+
+    fetchAnnouncements();
 
   }, []);
 
-  function addAnnouncement(){
 
-    if(
+  // Handle form changes
+  function handleChange(e) {
+
+    setNewAnnouncement({
+      ...newAnnouncement,
+      [e.target.name]: e.target.value
+    });
+
+  }
+
+
+  // Add announcement
+  async function addAnnouncement() {
+
+    if (
       !newAnnouncement.title ||
       !newAnnouncement.category ||
       !newAnnouncement.description ||
       !newAnnouncement.date ||
       !newAnnouncement.priority
-    ){
+    ) {
 
       alert("Please fill all fields.");
 
@@ -64,197 +81,283 @@ function AdminAnnouncements() {
 
     }
 
-    const updated=[
 
-      ...announcements,
+    try {
 
-      {
-        id:Date.now(),
-        ...newAnnouncement
+      const response = await fetch(
+        "http://localhost:5000/api/announcements",
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type": "application/json"
+          },
+
+          body: JSON.stringify(newAnnouncement)
+        }
+      );
+
+
+      const data = await response.json();
+
+
+      if (!response.ok) {
+
+        alert(
+          data.error || "Failed to add announcement."
+        );
+
+        return;
+
       }
 
-    ];
 
-    setAnnouncements(updated);
+      setAnnouncements([
+        ...announcements,
+        data
+      ]);
 
-    localStorage.setItem(
-      "announcements",
-      JSON.stringify(updated)
-    );
 
-    setNewAnnouncement({
-      title:"",
-      category:"",
-      description:"",
-      date:"",
-      priority:""
-    });
+      setNewAnnouncement(emptyAnnouncement);
 
-  }
 
-  function deleteAnnouncement(id){
+      alert("Announcement added successfully!");
 
-    if(!window.confirm("Delete this announcement?")) return;
 
-    const updated=announcements.filter(
-      announcement=>announcement.id!==id
-    );
+    } catch (error) {
 
-    setAnnouncements(updated);
+      console.error(error);
 
-    localStorage.setItem(
-      "announcements",
-      JSON.stringify(updated)
-    );
+      alert("Could not reach the server.");
+
+    }
 
   }
 
-  return(
 
-<div className="admin-page">
+  // Delete announcement
+  async function deleteAnnouncement(id) {
 
-<AdminSidebar/>
+    if (
+      !window.confirm(
+        "Delete this announcement?"
+      )
+    ) {
 
-<div className="admin-content">
+      return;
 
-<h1>Announcement Management</h1>
+    }
 
-<div className="admin-form">
 
-<input
-type="text"
-placeholder="Announcement Title"
-value={newAnnouncement.title}
-onChange={(e)=>
-setNewAnnouncement({
-...newAnnouncement,
-title:e.target.value
-})
-}
-/>
+    try {
 
-<select
-value={newAnnouncement.category}
-onChange={(e)=>
-setNewAnnouncement({
-...newAnnouncement,
-category:e.target.value
-})
-}
->
+      const response = await fetch(
+        `http://localhost:5000/api/announcements/${id}`,
+        {
+          method: "DELETE"
+        }
+      );
 
-<option value="">Category</option>
-<option>Academic</option>
-<option>Events</option>
-<option>Library</option>
-<option>Sports</option>
-<option>General</option>
 
-</select>
+      const data = await response.json();
 
-<input
-type="text"
-placeholder="Date"
-value={newAnnouncement.date}
-onChange={(e)=>
-setNewAnnouncement({
-...newAnnouncement,
-date:e.target.value
-})
-}
-/>
 
-<select
-value={newAnnouncement.priority}
-onChange={(e)=>
-setNewAnnouncement({
-...newAnnouncement,
-priority:e.target.value
-})
-}
->
+      if (!response.ok) {
 
-<option value="">Priority</option>
-<option>High</option>
-<option>Medium</option>
-<option>Low</option>
+        alert(
+          data.error ||
+          "Failed to delete announcement."
+        );
 
-</select>
+        return;
 
-<textarea
-placeholder="Announcement Description"
-rows="4"
-value={newAnnouncement.description}
-onChange={(e)=>
-setNewAnnouncement({
-...newAnnouncement,
-description:e.target.value
-})
-}
-/>
+      }
 
-<button onClick={addAnnouncement}>
 
-Add Announcement
+      setAnnouncements(
+        announcements.filter(
+          announcement =>
+            announcement.id !== id
+        )
+      );
 
-</button>
 
-</div>
+      alert(
+        "Announcement deleted successfully!"
+      );
 
-<table className="admin-table">
 
-<thead>
+    } catch (error) {
 
-<tr>
+      console.error(error);
 
-<th>Title</th>
-<th>Category</th>
-<th>Date</th>
-<th>Priority</th>
-<th>Action</th>
+      alert("Could not reach the server.");
 
-</tr>
+    }
 
-</thead>
+  }
 
-<tbody>
 
-{announcements.map((announcement)=>(
+  return (
 
-<tr key={announcement.id}>
+    <div className="admin-page">
 
-<td>{announcement.title}</td>
+      <AdminSidebar />
 
-<td>{announcement.category}</td>
+      <div className="admin-content">
 
-<td>{announcement.date}</td>
+        <h1>Announcement Management</h1>
 
-<td>{announcement.priority}</td>
 
-<td>
+        <div className="admin-form">
 
-<button
-className="delete-btn"
-onClick={()=>deleteAnnouncement(announcement.id)}
->
+          <input
+            type="text"
+            name="title"
+            placeholder="Announcement Title"
+            value={newAnnouncement.title}
+            onChange={handleChange}
+          />
 
-Delete
 
-</button>
+          <select
+            name="category"
+            value={newAnnouncement.category}
+            onChange={handleChange}
+          >
 
-</td>
+            <option value="">
+              Category
+            </option>
 
-</tr>
+            <option>Academic</option>
 
-))}
+            <option>Events</option>
 
-</tbody>
+            <option>Library</option>
 
-</table>
+            <option>Sports</option>
 
-</div>
+            <option>General</option>
 
-</div>
+          </select>
+
+
+          <input
+            type="text"
+            name="date"
+            placeholder="Date"
+            value={newAnnouncement.date}
+            onChange={handleChange}
+          />
+
+
+          <select
+            name="priority"
+            value={newAnnouncement.priority}
+            onChange={handleChange}
+          >
+
+            <option value="">
+              Priority
+            </option>
+
+            <option>High</option>
+
+            <option>Medium</option>
+
+            <option>Low</option>
+
+          </select>
+
+
+          <textarea
+            name="description"
+            placeholder="Announcement Description"
+            rows="4"
+            value={newAnnouncement.description}
+            onChange={handleChange}
+          />
+
+
+          <button onClick={addAnnouncement}>
+            Add Announcement
+          </button>
+
+        </div>
+
+
+        <table className="admin-table">
+
+          <thead>
+
+            <tr>
+
+              <th>Title</th>
+
+              <th>Category</th>
+
+              <th>Date</th>
+
+              <th>Priority</th>
+
+              <th>Action</th>
+
+            </tr>
+
+          </thead>
+
+
+          <tbody>
+
+            {announcements.map(
+              (announcement) => (
+
+                <tr key={announcement.id}>
+
+                  <td>
+                    {announcement.title}
+                  </td>
+
+                  <td>
+                    {announcement.category}
+                  </td>
+
+                  <td>
+                    {announcement.date}
+                  </td>
+
+                  <td>
+                    {announcement.priority}
+                  </td>
+
+                  <td>
+
+                    <button
+                      className="delete-btn"
+                      onClick={() =>
+                        deleteAnnouncement(
+                          announcement.id
+                        )
+                      }
+                    >
+                      Delete
+                    </button>
+
+                  </td>
+
+                </tr>
+
+              )
+            )}
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    </div>
 
   );
 

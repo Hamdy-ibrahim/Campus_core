@@ -11,7 +11,7 @@ function Profile() {
   const [clubs, setClubs] = useState([]);
   const [events, setEvents] = useState([]);
   const [marketItems, setMarketItems] = useState([]);
-const [requests, setRequests] = useState([]);
+  const [requests, setRequests] = useState([]);
 
   useEffect(() => {
 
@@ -26,301 +26,489 @@ const [requests, setRequests] = useState([]);
       navigate("/login");
 
       return;
-
     }
 
     setUser(currentUser);
 
-    const joinedClubs =
-JSON.parse(
-localStorage.getItem(
-"joinedClubs_" + currentUser.email
-)
-) || [];
 
-const allClubs =
-JSON.parse(localStorage.getItem("clubs")) || [];
+    // ================================
+    // LOAD CLUB MEMBERSHIPS FROM API
+    // ================================
 
-const validJoinedClubs = joinedClubs.filter(joinedClub =>
-allClubs.some(club => club.name === joinedClub)
-);
+    fetch(
+      `http://localhost:5000/api/clubs/memberships/user/${currentUser.id}`
+    )
+      .then(res => {
 
-localStorage.setItem(
-"joinedClubs_" + currentUser.email,
-JSON.stringify(validJoinedClubs)
-);
+        if (!res.ok) {
+          throw new Error(
+            "Failed to load club memberships"
+          );
+        }
 
-setClubs(validJoinedClubs);
+        return res.json();
 
-// Load registered events
-const registeredEvents = JSON.parse(
-  localStorage.getItem(
-    "registeredEvents_" + currentUser.email
-  )
-) || [];
+      })
+      .then(data => {
 
-setEvents(registeredEvents);
+        setClubs(data);
 
-const items = JSON.parse(
-localStorage.getItem("marketplaceItems")
-) || [];
+      })
+      .catch(err => {
 
-setMarketItems(items);
+        console.error(
+          "Failed to load club memberships:",
+          err
+        );
 
-const maintenance = JSON.parse(
-localStorage.getItem(
-"maintenance_" + currentUser.email
-)
-) || [];
+      });
 
-setRequests(maintenance);
 
-}, [navigate]);
+    // ================================
+    // LOAD EVENT REGISTRATIONS FROM API
+    // ================================
+
+    fetch(
+      `http://localhost:5000/api/events/registrations/user/${currentUser.id}`
+    )
+      .then(res => {
+
+        if (!res.ok) {
+          throw new Error(
+            "Failed to load event registrations"
+          );
+        }
+
+        return res.json();
+
+      })
+      .then(data => {
+
+        setEvents(data);
+
+      })
+      .catch(err => {
+
+        console.error(
+          "Failed to load event registrations:",
+          err
+        );
+
+      });
+
+
+    // ================================
+    // LOAD MARKETPLACE FROM API
+    // ================================
+
+    fetch(
+      "http://localhost:5000/api/marketplace"
+    )
+      .then(res => {
+
+        if (!res.ok) {
+          throw new Error(
+            "Failed to load marketplace"
+          );
+        }
+
+        return res.json();
+
+      })
+      .then(data => {
+
+        const myItems = data.filter(
+          item =>
+            item.sellerEmail === currentUser.email
+        );
+
+        setMarketItems(myItems);
+
+      })
+      .catch(err => {
+
+        console.error(
+          "Failed to load marketplace listings:",
+          err
+        );
+
+      });
+
+
+    // ================================
+    // LOAD MAINTENANCE FROM API
+    // ================================
+
+    fetch(
+      `http://localhost:5000/api/maintenance/user/${encodeURIComponent(
+        currentUser.email
+      )}`
+    )
+      .then(res => {
+
+        if (!res.ok) {
+          throw new Error(
+            "Failed to load maintenance requests"
+          );
+        }
+
+        return res.json();
+
+      })
+      .then(data => {
+
+        setRequests(data);
+
+      })
+      .catch(err => {
+
+        console.error(
+          "Failed to load maintenance requests:",
+          err
+        );
+
+      });
+
+  }, [navigate]);
 
 
   function logout() {
 
-    localStorage.removeItem("loggedInUser");
+    localStorage.removeItem(
+      "loggedInUser"
+    );
 
     navigate("/login");
 
   }
 
-  if (!user) return null;
+
+  if (!user) {
+    return null;
+  }
+
 
   return (
 
-<div className="dashboard">
+    <div className="dashboard">
 
+      <Sidebar />
 
-<Sidebar />
 
-{/* ================= MAIN ================= */}
+      <main className="main-content">
 
-<main className="main-content">
+        <div className="profile-header">
 
-<div className="profile-header">
+          <div>
 
-<div>
+            <h1>
+              My Profile
+            </h1>
 
-<h1>My Profile</h1>
+            <p>
+              Manage your CampusCore account and campus activities.
+            </p>
 
-<p>
+          </div>
 
-Manage your CampusCore account and campus activities.
+        </div>
 
-</p>
 
-</div>
-</div>
+        <div className="profile-card">
 
-<div className="profile-card">
 
-<div className="profile-top">
+          {/* ================= PROFILE TOP ================= */}
 
-<div className="profile-avatar">
+          <div className="profile-top">
 
-<i className="fa-solid fa-user-graduate"></i>
+            <div className="profile-avatar">
 
-</div>
+              <i className="fa-solid fa-user-graduate"></i>
 
-<div>
+            </div>
 
-<h2>{user.fullname}</h2>
+            <div>
 
-<p>
+              <h2>
+                {user.fullname}
+              </h2>
 
-{user.course} • {user.year}
+              <p>
+                {user.course} • {user.year}
+              </p>
 
-</p>
+            </div>
 
-</div>
+          </div>
 
-</div>
 
-{/* PERSONAL INFO */}
+          {/* ================= PERSONAL INFO ================= */}
 
-<div className="profile-section">
+          <div className="profile-section">
 
-<h3>Personal Information</h3>
+            <h3>
+              Personal Information
+            </h3>
 
-<div className="profile-grid">
 
-<div className="info-box">
+            <div className="profile-grid">
 
-<span>Student ID</span>
 
-<h4>{user.studentid}</h4>
+              <div className="info-box">
 
-</div>
+                <span>
+                  Student ID
+                </span>
 
-<div className="info-box">
+                <h4>
+                  {user.studentid}
+                </h4>
 
-<span>Email</span>
+              </div>
 
-<h4>{user.email}</h4>
 
-</div>
+              <div className="info-box">
 
-<div className="info-box">
+                <span>
+                  Email
+                </span>
 
-<span>Course</span>
+                <h4>
+                  {user.email}
+                </h4>
 
-<h4>{user.course}</h4>
+              </div>
 
-</div>
 
-<div className="info-box">
+              <div className="info-box">
 
-<span>Academic Year</span>
+                <span>
+                  Course
+                </span>
 
-<h4>{user.year}</h4>
+                <h4>
+                  {user.course}
+                </h4>
 
-</div>
+              </div>
 
-</div>
 
-</div>
+              <div className="info-box">
 
-{/* CAMPUS ACTIVITY */}
+                <span>
+                  Academic Year
+                </span>
 
-<div className="profile-section">
+                <h4>
+                  {user.year}
+                </h4>
 
-<h3>Campus Activity</h3>
+              </div>
 
-<div className="profile-grid">
 
-<div className="info-box">
+            </div>
 
-<span>Joined Clubs</span>
+          </div>
 
-<h2>{clubs.length}</h2>
 
-</div>
+          {/* ================= CAMPUS ACTIVITY ================= */}
 
-<div className="info-box">
+          <div className="profile-section">
 
-<span>Events Joined</span>
+            <h3>
+              Campus Activity
+            </h3>
 
-<h2>{events.length}</h2>
 
-</div>
+            <div className="profile-grid">
 
-<div className="info-box">
 
-<span>Marketplace Listings</span>
+              <div className="info-box">
 
-<h2>{marketItems.length}</h2>
+                <span>
+                  Joined Clubs
+                </span>
 
-</div>
+                <h2>
+                  {clubs.length}
+                </h2>
 
-<div className="info-box">
+              </div>
 
-<span>Maintenance Requests</span>
 
-<h2>{requests.length}</h2>
+              <div className="info-box">
 
-</div>
+                <span>
+                  Events Joined
+                </span>
 
-</div>
+                <h2>
+                  {events.length}
+                </h2>
 
-</div>
+              </div>
 
-{/* MY CLUBS */}
 
-<div className="profile-section">
+              <div className="info-box">
 
-<h3>My Clubs</h3>
+                <span>
+                  Marketplace Listings
+                </span>
 
-<ul className="activity-list">
+                <h2>
+                  {marketItems.length}
+                </h2>
 
-{clubs.length === 0 ? (
+              </div>
 
-<li>You haven't joined any clubs yet.</li>
 
-) : (
+              <div className="info-box">
 
-clubs.map((club,index)=>(
+                <span>
+                  Maintenance Requests
+                </span>
 
-<li key={index}>
+                <h2>
+                  {requests.length}
+                </h2>
 
-✓ {club}
+              </div>
 
-</li>
 
-))
+            </div>
 
-)}
+          </div>
 
-</ul>
 
-</div>
-<div className="profile-section">
+          {/* ================= MY CLUBS ================= */}
 
-<h3>My Events</h3>
+          <div className="profile-section">
 
-<ul className="activity-list">
+            <h3>
+              My Clubs
+            </h3>
 
-{events.length === 0 ? (
 
-<li>You haven't registered for any events.</li>
+            <ul className="activity-list">
 
-) : (
+              {clubs.length === 0 ? (
 
-events.map((event,index)=>(
+                <li>
+                  You haven't joined any clubs yet.
+                </li>
 
-<li key={index}>
-📅 {event}
-</li>
+              ) : (
 
-))
+                clubs.map((club) => (
 
-)}
+                  <li key={club.clubId}>
 
-</ul>
+                    ✓ {club.name}
 
-</div>
+                  </li>
 
-{/* RECENT */}
+                ))
 
-<div className="profile-section">
+              )}
 
-<h3>Recent Activity</h3>
+            </ul>
 
-<ul className="activity-list">
+          </div>
 
-<li>🎉 Welcome to CampusCore.</li>
 
-<li>📅 Keep joining clubs and events.</li>
+          {/* ================= MY EVENTS ================= */}
 
-<li>🛒 Marketplace activity will appear here.</li>
+          <div className="profile-section">
 
-<li>🛠 Maintenance requests will appear here.</li>
+            <h3>
+              My Events
+            </h3>
 
-</ul>
 
-</div>
+            <ul className="activity-list">
 
-<div className="profile-buttons">
+              {events.length === 0 ? (
 
-<button
-className="secondary"
-onClick={()=>navigate("/dashboard")}
->
+                <li>
+                  You haven't registered for any events.
+                </li>
 
-<i className="fa-solid fa-arrow-left"></i>
+              ) : (
 
-Back to Dashboard
+                events.map((event) => (
 
-</button>
+                  <li key={event.eventId}>
 
-</div>
+                    📅 {event.title}
 
-</div>
+                  </li>
 
-</main>
+                ))
 
-</div>
+              )}
+
+            </ul>
+
+          </div>
+
+
+          {/* ================= RECENT ACTIVITY ================= */}
+
+          <div className="profile-section">
+
+            <h3>
+              Recent Activity
+            </h3>
+
+
+            <ul className="activity-list">
+
+              <li>
+                🎉 Welcome to CampusCore.
+              </li>
+
+              <li>
+                📅 Keep joining clubs and events.
+              </li>
+
+              <li>
+                🛒 Your marketplace listings appear here.
+              </li>
+
+              <li>
+                🛠 Your maintenance requests appear here.
+              </li>
+
+            </ul>
+
+          </div>
+
+
+          {/* ================= BUTTONS ================= */}
+
+          <div className="profile-buttons">
+
+            <button
+              className="secondary"
+              onClick={() =>
+                navigate("/dashboard")
+              }
+            >
+
+              <i className="fa-solid fa-arrow-left"></i>
+
+              Back to Dashboard
+
+            </button>
+
+          </div>
+
+
+        </div>
+
+      </main>
+
+    </div>
 
   );
 

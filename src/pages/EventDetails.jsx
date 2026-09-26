@@ -1,205 +1,394 @@
-import { useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
 import "../styles/events.css";
 
 function EventDetails() {
 
-const { id } = useParams();
+  const { id } = useParams();
+  const navigate = useNavigate();
 
-const currentUser = JSON.parse(localStorage.getItem("loggedInUser"));
+  const currentUser = JSON.parse(
+    localStorage.getItem("loggedInUser")
+  );
 
-const eventKey = currentUser
-? "registeredEvents_" + currentUser.email
-: "registeredEvents_guest";
+  const [event, setEvent] = useState(null);
 
-const events =
-JSON.parse(localStorage.getItem("events")) || [];
+  const [registered, setRegistered] = useState(false);
 
-const event = events.find(
-e => e.id === Number(id)
-);
-if (!event) {
-  return <h2>Event not found.</h2>;
-}
 
-function register(){
+  // Check whether the current user is already registered
+  useEffect(() => {
 
-let registered =
-JSON.parse(localStorage.getItem(eventKey)) || [];
+    if (!currentUser) {
+      navigate("/login");
+      return;
+    }
 
-if(registered.includes(event.title)){
+    async function checkRegistration() {
 
-alert("Already registered.");
+      try {
 
-return;
+        const response = await fetch(
+          `http://localhost:5000/api/events/registrations/user/${currentUser.id}`
+        );
 
-}
+        if (!response.ok) {
+          throw new Error(
+            "Failed to fetch registrations"
+          );
+        }
 
-registered.push(event.title);
+        const registrations =
+          await response.json();
 
-localStorage.setItem(
+        const alreadyRegistered =
+          registrations.some(
+            registration =>
+              registration.eventId === Number(id)
+          );
 
-eventKey,
+        setRegistered(alreadyRegistered);
 
-JSON.stringify(registered)
+      } catch (error) {
 
-);
+        console.error(error);
 
-alert("Successfully Registered!");
+      }
 
-}
+    }
 
-return(
+    checkRegistration();
 
-<div className="dashboard">
+  }, [id, navigate, currentUser?.id]);
 
-<Sidebar/>
 
-<main className="main-content">
+  // Load the selected event from the backend
+  useEffect(() => {
 
-<button
+    async function fetchEvent() {
 
-className="back-btn"
+      try {
 
-onClick={()=>window.history.back()}
+        const response = await fetch(
+          `http://localhost:5000/api/events/${id}`
+        );
 
->
+        if (!response.ok) {
 
-← Back to Events
+          if (response.status === 404) {
+            throw new Error("Event not found");
+          }
 
-</button>
+          throw new Error(
+            "Failed to fetch event"
+          );
 
-<div className="club-header">
+        }
 
-<div>
+        const data =
+          await response.json();
 
-<span className="club-tag">
+        setEvent(data);
 
-{event.category}
+      } catch (error) {
 
-</span>
+        console.error(error);
 
-<h1>
+        setEvent(null);
 
-{event.title}
+      }
 
-</h1>
+    }
 
-<p>
+    fetchEvent();
 
-{event.description}
+  }, [id]);
 
-</p>
 
-</div>
+  // Register for this event
+  async function register() {
 
-<button
+    if (!currentUser) {
+      navigate("/login");
+      return;
+    }
 
-className="join-big-btn"
+    if (registered) {
 
-onClick={register}
+      alert(
+        "You have already registered for this event."
+      );
 
->
+      return;
 
-Register
+    }
 
-</button>
+    try {
 
-</div>
+      const response = await fetch(
+        `http://localhost:5000/api/events/${event.id}/register`,
+        {
+          method: "POST",
 
-<div className="club-stats">
+          headers: {
+            "Content-Type": "application/json"
+          },
 
-<div>
+          body: JSON.stringify({
+            userId: currentUser.id
+          })
+        }
+      );
 
-<h2>{event.date}</h2>
+      const data =
+        await response.json();
 
-<p>Date</p>
+      if (!response.ok) {
 
-</div>
+        alert(
+          data.error ||
+          "Failed to register for event."
+        );
 
-<div>
+        return;
 
-<h2>{event.time}</h2>
+      }
 
-<p>Time</p>
+      setRegistered(true);
 
-</div>
+      alert(
+        "Successfully Registered!"
+      );
 
-<div>
+    } catch (error) {
 
-<h2>{event.venue}</h2>
+      console.error(error);
 
-<p>Venue</p>
+      alert(
+        "Could not connect to the server."
+      );
 
-</div>
+    }
 
-<div>
+  }
 
-<h2>{event.organizer}</h2>
 
-<p>Organizer</p>
+  // Wait while the event is being loaded
+  if (event === null) {
 
-</div>
+    return (
+      <div className="dashboard">
 
-</div>
+        <Sidebar />
 
-<div className="details-grid">
+        <main className="main-content">
 
-<div>
+          <h2>Loading event...</h2>
 
-<div className="detail-card">
+        </main>
 
-<h2>About Event</h2>
+      </div>
+    );
 
-<p>{event.description}</p>
+  }
 
-</div>
 
-<div className="detail-card">
+  return (
 
-<h2>Requirements</h2>
+    <div className="dashboard">
 
-<ul>
+      <Sidebar />
 
-{event.requirements.map((item,index)=>(
+      <main className="main-content">
 
-<li key={index}>{item}</li>
 
-))}
+        <button
+          className="back-btn"
+          onClick={() => window.history.back()}
+        >
+          ← Back to Events
+        </button>
 
-</ul>
 
-</div>
+        <div className="club-header">
 
-</div>
+          <div>
 
-<div>
+            <span className="club-tag">
+              {event.category}
+            </span>
 
-<div className="detail-card">
+            <h1>
+              {event.title}
+            </h1>
 
-<h2>Event Schedule</h2>
+            <p>
+              {event.description}
+            </p>
 
-<ul>
+          </div>
 
-{event.schedule.map((item,index)=>(
 
-<li key={index}>{item}</li>
+          <button
+            className="join-big-btn"
+            onClick={register}
+            disabled={registered}
+          >
+            {registered
+              ? "✓ Registered"
+              : "Register"
+            }
+          </button>
 
-))}
+        </div>
 
-</ul>
 
-</div>
+        <div className="club-stats">
 
-</div>
 
-</div>
+          <div>
 
-</main>
+            <h2>
+              {event.date}
+            </h2>
 
-</div>
+            <p>Date</p>
 
-);
+          </div>
+
+
+          <div>
+
+            <h2>
+              {event.time || "Not specified"}
+            </h2>
+
+            <p>Time</p>
+
+          </div>
+
+
+          <div>
+
+            <h2>
+              {event.venue || event.location}
+            </h2>
+
+            <p>Venue</p>
+
+          </div>
+
+
+          <div>
+
+            <h2>
+              {event.organizer || "Not specified"}
+            </h2>
+
+            <p>Organizer</p>
+
+          </div>
+
+
+        </div>
+
+
+        <div className="details-grid">
+
+
+          <div>
+
+            <div className="detail-card">
+
+              <h2>About Event</h2>
+
+              <p>
+                {event.description ||
+                  "No description available."
+                }
+              </p>
+
+            </div>
+
+
+            <div className="detail-card">
+
+              <h2>Requirements</h2>
+
+              {event.requirements &&
+              event.requirements.length > 0 ? (
+
+                <ul>
+
+                  {event.requirements.map(
+                    (item, index) => (
+
+                      <li key={index}>
+                        {item}
+                      </li>
+
+                    )
+                  )}
+
+                </ul>
+
+              ) : (
+
+                <p>
+                  No requirements specified.
+                </p>
+
+              )}
+
+            </div>
+
+          </div>
+
+
+          <div>
+
+            <div className="detail-card">
+
+              <h2>Event Schedule</h2>
+
+              {event.schedule &&
+              event.schedule.length > 0 ? (
+
+                <ul>
+
+                  {event.schedule.map(
+                    (item, index) => (
+
+                      <li key={index}>
+                        {item}
+                      </li>
+
+                    )
+                  )}
+
+                </ul>
+
+              ) : (
+
+                <p>
+                  No schedule available.
+                </p>
+
+              )}
+
+            </div>
+
+          </div>
+
+
+        </div>
+
+      </main>
+
+    </div>
+
+  );
 
 }
 

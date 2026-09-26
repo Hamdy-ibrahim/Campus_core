@@ -5,54 +5,68 @@ import "../styles/shared.css";
 function Announcements() {
 
   const [announcements, setAnnouncements] = useState([]);
+  const [loading, setLoading] = useState(true);
+
 
   useEffect(() => {
 
-  let saved = JSON.parse(localStorage.getItem("announcements"));
+    async function fetchAnnouncements() {
 
-  if (!saved) {
+      try {
 
-    saved = [
+        const response = await fetch(
+          "http://localhost:5000/api/announcements"
+        );
 
-      {
-        id: 1,
-        title: "Semester Registration",
-        category: "Academic",
-        description: "Semester registration closes this Friday at 5:00 PM.",
-        date: "20 July 2026",
-        priority: "High"
-      },
+        if (!response.ok) {
+          throw new Error(
+            "Failed to fetch announcements"
+          );
+        }
 
-      {
-        id: 2,
-        title: "Innovation Fair",
-        category: "Events",
-        description: "Students are invited to showcase innovative projects.",
-        date: "25 July 2026",
-        priority: "Medium"
-      },
+        const data = await response.json();
 
-      {
-        id: 3,
-        title: "Library Hours Extended",
-        category: "Library",
-        description: "The library will remain open until 10 PM during exams.",
-        date: "18 July 2026",
-        priority: "Low"
+        setAnnouncements(data);
+
+      } catch (error) {
+
+        console.error(error);
+
+        alert(
+          "Could not load announcements from the server."
+        );
+
+      } finally {
+
+        setLoading(false);
+
       }
 
-    ];
+    }
 
-    localStorage.setItem(
-      "announcements",
-      JSON.stringify(saved)
+    fetchAnnouncements();
+
+  }, []);
+
+
+  if (loading) {
+
+    return (
+      <div className="dashboard">
+
+        <Sidebar />
+
+        <main className="main-content">
+
+          <h2>Loading announcements...</h2>
+
+        </main>
+
+      </div>
     );
 
   }
 
-  setAnnouncements(saved);
-
-}, []);
 
   return (
 
@@ -67,53 +81,71 @@ function Announcements() {
           <h1>📢 Announcements</h1>
 
           <p>
-
-            Stay updated with the latest university news and notices.
-
+            Stay updated with the latest university news
+            and notices.
           </p>
 
         </section>
 
+
         <div className="announcement-list">
 
-          {announcements.map((announcement) => (
+          {announcements.length === 0 ? (
 
-            <div
-              className="announcement-card"
-              key={announcement.id}
-            >
+            <p>No announcements available.</p>
 
-              <div className="announcement-top">
+          ) : (
 
-                <span className="announcement-category">
+            announcements.map(
+              (announcement) => (
 
-                  {announcement.category}
-
-                </span>
-
-                <span
-                  className={`priority ${announcement.priority.toLowerCase()}`}
+                <div
+                  className="announcement-card"
+                  key={announcement.id}
                 >
 
-                  {announcement.priority}
+                  <div className="announcement-top">
 
-                </span>
+                    <span className="announcement-category">
 
-              </div>
+                      {announcement.category}
 
-              <h2>{announcement.title}</h2>
+                    </span>
 
-              <p>{announcement.description}</p>
 
-              <small>
+                    <span
+                      className={`priority ${announcement.priority.toLowerCase()}`}
+                    >
 
-                📅 {announcement.date}
+                      {announcement.priority}
 
-              </small>
+                    </span>
 
-            </div>
+                  </div>
 
-          ))}
+
+                  <h2>
+                    {announcement.title}
+                  </h2>
+
+
+                  <p>
+                    {announcement.description}
+                  </p>
+
+
+                  <small>
+
+                    📅 {announcement.date}
+
+                  </small>
+
+                </div>
+
+              )
+            )
+
+          )}
 
         </div>
 

@@ -6,234 +6,244 @@ function AdminMaintenance() {
 
   const [requests, setRequests] = useState([]);
 
+  // Get all maintenance requests
   useEffect(() => {
 
-    const users =
-      JSON.parse(localStorage.getItem("users")) || [];
-
-    let allRequests = [];
-
-    users.forEach(user => {
-
-      const userRequests =
-        JSON.parse(
-          localStorage.getItem(
-            "maintenance_" + user.email
-          )
-        ) || [];
-
-      userRequests.forEach(request => {
-
-        allRequests.push({
-
-          ...request,
-
-          student: user.fullname,
-
-          email: user.email
-
-        });
-
+    fetch("http://localhost:5000/api/maintenance")
+      .then(res => res.json())
+      .then(data => {
+        setRequests(data);
+      })
+      .catch(err => {
+        console.error(
+          "Failed to load maintenance requests:",
+          err
+        );
       });
-
-    });
-
-    setRequests(allRequests);
 
   }, []);
 
-  function updateStatus(id,newStatus){
+  // Update request status
+  async function updateStatus(id, newStatus) {
 
-    const updated=requests.map(request=>{
+    try {
 
-      if(request.id===id){
+      const response = await fetch(
+        `http://localhost:5000/api/maintenance/${id}/status`,
+        {
+          method: "PATCH",
 
-        const studentRequests=
-          JSON.parse(
-            localStorage.getItem(
-              "maintenance_"+request.email
-            )
-          ) || [];
+          headers: {
+            "Content-Type": "application/json"
+          },
 
-        const updatedStudent=studentRequests.map(r=>
+          body: JSON.stringify({
+            status: newStatus
+          })
+        }
+      );
 
-          r.id===id
+      const data = await response.json();
 
-          ? {...r,status:newStatus}
+      if (!response.ok) {
 
-          : r
-
+        alert(
+          data.error ||
+          "Failed to update status."
         );
 
-        localStorage.setItem(
-
-          "maintenance_"+request.email,
-
-          JSON.stringify(updatedStudent)
-
-        );
-
-        return{
-
-          ...request,
-
-          status:newStatus
-
-        };
-
+        return;
       }
 
-      return request;
+      setRequests(prevRequests =>
+        prevRequests.map(request =>
+          request.id === id
+            ? {
+                ...request,
+                status: data.status
+              }
+            : request
+        )
+      );
 
-    });
+    } catch (err) {
 
-    setRequests(updated);
+      console.error(err);
 
-  }
+      alert(
+        "Could not connect to the server."
+      );
 
-  function deleteRequest(id,email){
-
-    if(!window.confirm("Delete this request?")) return;
-
-    const updatedStudent=
-
-      (
-        JSON.parse(
-          localStorage.getItem(
-            "maintenance_"+email
-          )
-        ) || []
-      ).filter(r=>r.id!==id);
-
-    localStorage.setItem(
-
-      "maintenance_"+email,
-
-      JSON.stringify(updatedStudent)
-
-    );
-
-    setRequests(
-
-      requests.filter(r=>r.id!==id)
-
-    );
+    }
 
   }
 
-  return(
+  // Delete request
+  async function deleteRequest(id) {
 
-<div className="admin-page">
+    if (!window.confirm("Delete this request?")) {
+      return;
+    }
 
-<AdminSidebar/>
+    try {
 
-<div className="admin-content">
+      const response = await fetch(
+        `http://localhost:5000/api/maintenance/${id}`,
+        {
+          method: "DELETE"
+        }
+      );
 
-<h1>Maintenance Requests</h1>
+      const data = await response.json();
 
-<table className="admin-table">
+      if (!response.ok) {
 
-<thead>
+        alert(
+          data.error ||
+          "Failed to delete request."
+        );
 
-<tr>
+        return;
+      }
 
-<th>Student</th>
+      setRequests(prevRequests =>
+        prevRequests.filter(
+          request => request.id !== id
+        )
+      );
 
-<th>Location</th>
+    } catch (err) {
 
-<th>Category</th>
+      console.error(err);
 
-<th>Description</th>
+      alert(
+        "Could not connect to the server."
+      );
 
-<th>Status</th>
+    }
 
-<th>Action</th>
+  }
 
-</tr>
+  return (
 
-</thead>
+    <div className="admin-page">
 
-<tbody>
+      <AdminSidebar />
 
-{requests.map(request=>(
+      <div className="admin-content">
 
-<tr key={request.id}>
+        <h1>
+          Maintenance Requests
+        </h1>
 
-<td>{request.student}</td>
+        <table className="admin-table">
 
-<td>{request.location}</td>
+          <thead>
 
-<td>{request.category}</td>
+            <tr>
 
-<td>{request.description}</td>
+              <th>
+                Student
+              </th>
 
-<td>
+              <th>
+                Location
+              </th>
 
-<select
+              <th>
+                Category
+              </th>
 
-value={request.status}
+              <th>
+                Description
+              </th>
 
-onChange={(e)=>
+              <th>
+                Status
+              </th>
 
-updateStatus(
+              <th>
+                Action
+              </th>
 
-request.id,
+            </tr>
 
-e.target.value
+          </thead>
 
-)
+          <tbody>
 
-}
+            {requests.map(request => (
 
->
+              <tr key={request.id}>
 
-<option>Pending</option>
+                <td>
+                  {request.student}
+                </td>
 
-<option>In Progress</option>
+                <td>
+                  {request.location}
+                </td>
 
-<option>Completed</option>
+                <td>
+                  {request.category}
+                </td>
 
-</select>
+                <td>
+                  {request.description}
+                </td>
 
-</td>
+                <td>
 
-<td>
+                  <select
+                    value={request.status}
+                    onChange={(e) =>
+                      updateStatus(
+                        request.id,
+                        e.target.value
+                      )
+                    }
+                  >
 
-<button
+                    <option>
+                      Pending
+                    </option>
 
-className="delete-btn"
+                    <option>
+                      In Progress
+                    </option>
 
-onClick={()=>
+                    <option>
+                      Completed
+                    </option>
 
-deleteRequest(
+                  </select>
 
-request.id,
+                </td>
 
-request.email
+                <td>
 
-)
+                  <button
+                    className="delete-btn"
+                    onClick={() =>
+                      deleteRequest(request.id)
+                    }
+                  >
+                    Delete
+                  </button>
 
-}
+                </td>
 
->
+              </tr>
 
-Delete
+            ))}
 
-</button>
+          </tbody>
 
-</td>
+        </table>
 
-</tr>
+      </div>
 
-))}
-
-</tbody>
-
-</table>
-
-</div>
-
-</div>
+    </div>
 
   );
 

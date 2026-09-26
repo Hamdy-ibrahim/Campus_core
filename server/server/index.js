@@ -14,23 +14,30 @@ app.get('/', (req, res) => {
   });
 });
 
-// Existing signup route
+// Signup
 const signupRoutes = require('./routes/signup');
 app.use('/api/signup', signupRoutes);
 
-// Week 5 GET routes
-const profileRoutes = require('./routes/profile');
-const eventsRoutes = require('./routes/events');
-const clubsRoutes = require('./routes/clubs');
-const announcementsRoutes = require('./routes/announcements');
+// Events
+const eventRoutes = require('./routes/events');
+app.use('/api/events', eventRoutes);
+
+// Clubs
+const clubRoutes = require('./routes/clubs');
+app.use('/api/clubs', clubRoutes);
+
+// Announcements
+const announcementRoutes = require('./routes/announcements');
+app.use('/api/announcements', announcementRoutes);
+
+// Marketplace
 const marketplaceRoutes = require('./routes/marketplace');
+app.use('/api/marketplace', marketplaceRoutes);
 
-app.use('/fitcoach-users', profileRoutes);
-app.use('/events', eventsRoutes);
-app.use('/clubs', clubsRoutes);
-app.use('/announcements', announcementsRoutes);
-app.use('/marketplace', marketplaceRoutes);
+const maintenanceRoutes = require("./routes/maintenance");
+app.use("/api/maintenance", maintenanceRoutes);
 
+// Server
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });

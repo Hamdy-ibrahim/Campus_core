@@ -4,297 +4,338 @@ import "../styles/shared.css";
 
 function Maintenance() {
 
-const currentUser = JSON.parse(
-localStorage.getItem("loggedInUser")
-);
+  const currentUser = JSON.parse(
+    localStorage.getItem("loggedInUser")
+  );
 
-const requestKey =
-currentUser
-? "maintenance_" + currentUser.email
-: "maintenance_guest";
+  const [requests, setRequests] = useState([]);
 
-const [requests,setRequests] = useState([]);
+  const [form, setForm] = useState({
+    title: "",
+    category: "",
+    location: "",
+    priority: "",
+    description: ""
+  });
 
-const [form,setForm] = useState({
+  // Get this student's maintenance requests
+  useEffect(() => {
 
-title:"",
-category:"",
-location:"",
-priority:"",
-description:""
+    if (!currentUser) {
+      return;
+    }
 
-});
+    fetch(
+      `http://localhost:5000/api/maintenance/user/${encodeURIComponent(currentUser.email)}`
+    )
+      .then(res => res.json())
+      .then(data => {
+        setRequests(data);
+      })
+      .catch(err => {
+        console.error(
+          "Failed to load maintenance requests:",
+          err
+        );
+      });
 
-useEffect(()=>{
+  }, [currentUser?.email]);
 
-const saved =
-JSON.parse(localStorage.getItem(requestKey)) || [];
+  function handleChange(e) {
 
-setRequests(saved);
+    setForm({
+      ...form,
+      [e.target.name]: e.target.value
+    });
 
-},[]);
+  }
 
-function handleChange(e){
+  async function submitRequest(e) {
 
-setForm({
+    e.preventDefault();
 
-...form,
+    if (!currentUser) {
 
-[e.target.name]:e.target.value
+      alert("Please log in before submitting a maintenance request.");
 
-});
+      return;
+    }
 
-}
+    try {
 
-function submitRequest(e){
+      const response = await fetch(
+        "http://localhost:5000/api/maintenance",
+        {
+          method: "POST",
 
-e.preventDefault();
+          headers: {
+            "Content-Type": "application/json"
+          },
 
-const newRequest={
+          body: JSON.stringify({
 
-id:Date.now(),
+            userId: currentUser.id,
 
-...form,
+            student: currentUser.fullname,
 
-status:"Pending"
+            email: currentUser.email,
 
-};
+            ...form
 
-const updated=[...requests,newRequest];
+          })
+        }
+      );
 
-setRequests(updated);
+      const data = await response.json();
 
-localStorage.setItem(
+      if (!response.ok) {
 
-requestKey,
+        alert(
+          data.error ||
+          "Failed to submit maintenance request."
+        );
 
-JSON.stringify(updated)
+        return;
+      }
 
-);
+      // Add newly created request to the page
+      setRequests(prevRequests => [
+        data,
+        ...prevRequests
+      ]);
 
-setForm({
+      // Clear form
+      setForm({
+        title: "",
+        category: "",
+        location: "",
+        priority: "",
+        description: ""
+      });
 
-title:"",
-category:"",
-location:"",
-priority:"",
-description:""
+      alert(
+        "Maintenance request submitted successfully."
+      );
 
-});
+    } catch (err) {
 
-alert("Maintenance request submitted successfully.");
+      console.error(err);
 
-}
+      alert(
+        "Could not connect to the server."
+      );
 
-return(
+    }
 
-<div className="dashboard">
+  }
 
-<Sidebar/>
+  return (
 
-<main className="main-content">
+    <div className="dashboard">
 
-<section className="maintenance-header">
+      <Sidebar />
 
-<h1>🛠 Maintenance Requests</h1>
+      <main className="main-content">
 
-<p>
+        <section className="maintenance-header">
 
-Report damaged facilities or maintenance issues around campus.
+          <h1>🛠 Maintenance Requests</h1>
 
-</p>
+          <p>
+            Report damaged facilities or maintenance issues around campus.
+          </p>
 
-</section>
+        </section>
 
-<div className="maintenance-container">
+        <div className="maintenance-container">
 
-<div className="maintenance-form">
+          <div className="maintenance-form">
 
-<h2>New Request</h2>
+            <h2>New Request</h2>
 
-<form onSubmit={submitRequest}>
+            <form onSubmit={submitRequest}>
 
-<input
+              <input
+                type="text"
+                name="title"
+                placeholder="Issue Title"
+                value={form.title}
+                onChange={handleChange}
+                required
+              />
 
-type="text"
+              <select
+                name="category"
+                value={form.category}
+                onChange={handleChange}
+                required
+              >
 
-name="title"
+                <option value="">
+                  Select Category
+                </option>
 
-placeholder="Issue Title"
+                <option>
+                  Electrical
+                </option>
 
-value={form.title}
+                <option>
+                  Plumbing
+                </option>
 
-onChange={handleChange}
+                <option>
+                  Furniture
+                </option>
 
-required
+                <option>
+                  Cleaning
+                </option>
 
-/>
+                <option>
+                  Internet/WiFi
+                </option>
 
-<select
+                <option>
+                  Other
+                </option>
 
-name="category"
+              </select>
 
-value={form.category}
+              <input
+                type="text"
+                name="location"
+                placeholder="Location"
+                value={form.location}
+                onChange={handleChange}
+                required
+              />
 
-onChange={handleChange}
+              <select
+                name="priority"
+                value={form.priority}
+                onChange={handleChange}
+                required
+              >
 
-required
+                <option value="">
+                  Priority
+                </option>
 
->
+                <option>
+                  Low
+                </option>
 
-<option value="">Select Category</option>
+                <option>
+                  Medium
+                </option>
 
-<option>Electrical</option>
+                <option>
+                  High
+                </option>
 
-<option>Plumbing</option>
+              </select>
 
-<option>Furniture</option>
+              <textarea
+                name="description"
+                placeholder="Describe the issue"
+                rows="5"
+                value={form.description}
+                onChange={handleChange}
+                required
+              />
 
-<option>Cleaning</option>
+              <button type="submit">
+                Submit Request
+              </button>
 
-<option>Internet/WiFi</option>
+            </form>
 
-<option>Other</option>
+          </div>
 
-</select>
+          <div className="maintenance-list">
 
-<input
+            <h2>My Requests</h2>
 
-type="text"
+            {requests.length === 0 ? (
 
-name="location"
+              <p>
+                No maintenance requests yet.
+              </p>
 
-placeholder="Location"
+            ) : (
 
-value={form.location}
+              requests.map(request => (
 
-onChange={handleChange}
+                <div
+                  className="request-card"
+                  key={request.id}
+                >
 
-required
+                  <h3>
+                    {request.title}
+                  </h3>
 
-/>
+                  <p>
 
-<select
+                    <strong>
+                      Category:
+                    </strong>{" "}
 
-name="priority"
+                    {request.category}
 
-value={form.priority}
+                  </p>
 
-onChange={handleChange}
+                  <p>
 
-required
+                    <strong>
+                      Location:
+                    </strong>{" "}
 
->
+                    {request.location}
 
-<option value="">Priority</option>
+                  </p>
 
-<option>Low</option>
+                  <p>
 
-<option>Medium</option>
+                    <strong>
+                      Priority:
+                    </strong>{" "}
 
-<option>High</option>
+                    {request.priority}
 
-</select>
+                  </p>
 
-<textarea
+                  <p>
 
-name="description"
+                    <strong>
+                      Status:
+                    </strong>{" "}
 
-placeholder="Describe the issue"
+                    <span className="status">
+                      {request.status}
+                    </span>
 
-rows="5"
+                  </p>
 
-value={form.description}
+                  <p>
+                    {request.description}
+                  </p>
 
-onChange={handleChange}
+                </div>
 
-required
+              ))
 
-/>
+            )}
 
-<button type="submit">
+          </div>
 
-Submit Request
+        </div>
 
-</button>
+      </main>
 
-</form>
+    </div>
 
-</div>
-
-<div className="maintenance-list">
-
-<h2>My Requests</h2>
-
-{
-requests.length===0?
-
-<p>No maintenance requests yet.</p>
-
-:
-
-requests.map(request=>(
-
-<div
-className="request-card"
-key={request.id}
->
-
-<h3>{request.title}</h3>
-
-<p>
-
-<strong>Category:</strong>
-
-{request.category}
-
-</p>
-
-<p>
-
-<strong>Location:</strong>
-
-{request.location}
-
-</p>
-
-<p>
-
-<strong>Priority:</strong>
-
-{request.priority}
-
-</p>
-
-<p>
-
-<strong>Status:</strong>
-
-<span className="status">
-
-{request.status}
-
-</span>
-
-</p>
-
-<p>{request.description}</p>
-
-</div>
-
-))
-
-}
-
-</div>
-
-</div>
-
-</main>
-
-</div>
-
-);
+  );
 
 }
 

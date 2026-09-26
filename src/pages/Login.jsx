@@ -3,13 +3,16 @@ import { useState } from "react";
 import "../styles/shared.css";
 
 function Login() {
+
   const navigate = useNavigate();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
-  const handleLogin = (e) => {
+
+  async function handleLogin(e) {
+
     e.preventDefault();
 
     if (!email || !password) {
@@ -17,52 +20,88 @@ function Login() {
       return;
     }
 
-    const users = JSON.parse(localStorage.getItem("users")) || [];
-
-    const savedUser = users.find(
-      (user) =>
-        user.email === email.trim() &&
-        user.password === password.trim()
-    );
 
     // ---------- ADMIN LOGIN ----------
-if (
-  email.trim() === "admin@campuscore.com" &&
-  password.trim() === "admin123"
-) {
 
-  const admin = {
-    fullname: "System Administrator",
-    email: "admin@campuscore.com",
-    role: "admin"
-  };
+    if (
+      email.trim() === "admin@campuscore.com" &&
+      password.trim() === "admin123"
+    ) {
 
-  localStorage.setItem(
-    "loggedInUser",
-    JSON.stringify(admin)
-  );
+      const admin = {
+        fullname: "System Administrator",
+        email: "admin@campuscore.com",
+        role: "admin"
+      };
 
-  navigate("/admin");
+      localStorage.setItem(
+        "loggedInUser",
+        JSON.stringify(admin)
+      );
 
-  return;
-}
+      navigate("/admin");
 
-// ---------- STUDENT LOGIN ----------
-if (!savedUser) {
+      return;
+    }
 
-  alert("Incorrect email or password.");
 
-  return;
+    // ---------- STUDENT LOGIN ----------
 
-}
+    try {
 
-localStorage.setItem(
-  "loggedInUser",
-  JSON.stringify(savedUser)
-);
+      const response = await fetch(
+        "http://localhost:5000/api/signup/login",
+        {
+          method: "POST",
 
-navigate("/dashboard");
-};
+          headers: {
+            "Content-Type": "application/json"
+          },
+
+          body: JSON.stringify({
+            email: email.trim(),
+            password: password.trim()
+          })
+        }
+      );
+
+
+      const data = await response.json();
+
+
+      if (!response.ok) {
+
+        alert(
+          data.error ||
+          "Incorrect email or password."
+        );
+
+        return;
+      }
+
+
+      // Save logged-in student
+      localStorage.setItem(
+        "loggedInUser",
+        JSON.stringify(data.user)
+      );
+
+
+      // Go to student dashboard
+      navigate("/dashboard");
+
+
+    } catch (err) {
+
+      console.error(err);
+
+      alert(
+        "Could not connect to the server. Is the backend running?"
+      );
+    }
+  }
+
+
   return (
     <div className="login-page">
 
@@ -86,6 +125,7 @@ navigate("/dashboard");
 
       </div>
 
+
       {/* RIGHT */}
 
       <div className="login-right">
@@ -96,6 +136,7 @@ navigate("/dashboard");
 
           <p>Sign in to continue.</p>
 
+
           <form onSubmit={handleLogin}>
 
             <label>Email</label>
@@ -104,29 +145,45 @@ navigate("/dashboard");
               type="email"
               placeholder="Enter your email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) =>
+                setEmail(e.target.value)
+              }
             />
+
 
             <label>Password</label>
 
             <div className="password-box">
 
               <input
-                type={showPassword ? "text" : "password"}
+                type={
+                  showPassword
+                    ? "text"
+                    : "password"
+                }
                 placeholder="Enter password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) =>
+                  setPassword(e.target.value)
+                }
               />
 
               <i
                 className={`fa-solid ${
-                  showPassword ? "fa-eye-slash" : "fa-eye"
+                  showPassword
+                    ? "fa-eye-slash"
+                    : "fa-eye"
                 }`}
-                onClick={() => setShowPassword(!showPassword)}
-                style={{ cursor: "pointer" }}
+                onClick={() =>
+                  setShowPassword(!showPassword)
+                }
+                style={{
+                  cursor: "pointer"
+                }}
               ></i>
 
             </div>
+
 
             <div className="login-options">
 
@@ -138,15 +195,20 @@ navigate("/dashboard");
 
               </label>
 
-              <a href="#">Forgot Password?</a>
+
+              <a href="#">
+                Forgot Password?
+              </a>
 
             </div>
+
 
             <button type="submit">
               Login
             </button>
 
           </form>
+
 
           <p className="signup-link">
 

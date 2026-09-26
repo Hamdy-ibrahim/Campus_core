@@ -9,208 +9,284 @@ function AdminMarketplace() {
   const [newItem, setNewItem] = useState({
     title: "",
     price: "",
-    seller: ""
+    category: "Other",
+    description: "",
+    emoji: "📦",
+    seller: "",
+    sellerEmail: ""
   });
 
+  // Get marketplace items from API
   useEffect(() => {
-
-    const saved =
-      JSON.parse(localStorage.getItem("marketplaceItems")) || [
-
-        {
-          id: 1,
-          title: "HP Laptop",
-          price: "KSh 45,000",
-          seller: "John"
-        },
-
-        {
-          id: 2,
-          title: "Engineering Calculator",
-          price: "KSh 3,000",
-          seller: "Mary"
-        }
-
-      ];
-
-    localStorage.setItem(
-      "marketplaceItems",
-      JSON.stringify(saved)
-    );
-
-    setItems(saved);
-
+    fetch("http://localhost:5000/api/marketplace")
+      .then(res => res.json())
+      .then(data => {
+        setItems(data);
+      })
+      .catch(err => {
+        console.error("Failed to load marketplace:", err);
+      });
   }, []);
 
-  function addItem() {
+  // Add marketplace item
+  async function addItem() {
 
     if (
       !newItem.title ||
       !newItem.price ||
-      !newItem.seller
+      !newItem.seller ||
+      !newItem.sellerEmail ||
+      !newItem.description
     ) {
-
       alert("Please fill all fields.");
-
       return;
-
     }
 
-    const updated = [
+    try {
 
-      ...items,
+      const response = await fetch(
+        "http://localhost:5000/api/marketplace",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(newItem)
+        }
+      );
 
-      {
-        id: Date.now(),
-        ...newItem
+      const data = await response.json();
+
+      if (!response.ok) {
+        alert(data.error || "Failed to add item");
+        return;
       }
 
-    ];
+      // Add the item returned by the API
+      setItems(prevItems => [
+        data,
+        ...prevItems
+      ]);
 
-    setItems(updated);
+      // Clear form
+      setNewItem({
+        title: "",
+        price: "",
+        category: "Other",
+        description: "",
+        emoji: "📦",
+        seller: "",
+        sellerEmail: ""
+      });
 
-    localStorage.setItem(
-      "marketplaceItems",
-      JSON.stringify(updated)
-    );
+      alert("Item added successfully!");
 
-    setNewItem({
-      title: "",
-      price: "",
-      seller: ""
-    });
+    } catch (err) {
 
+      console.error(err);
+      alert("Could not connect to the server.");
+
+    }
   }
 
-  function deleteItem(id) {
+  // Delete marketplace item
+  async function deleteItem(id) {
 
-    if (!window.confirm("Delete this listing?"))
+    if (!window.confirm("Delete this listing?")) {
       return;
+    }
 
-    const updated = items.filter(
-      item => item.id !== id
-    );
+    try {
 
-    setItems(updated);
+      const response = await fetch(
+        `http://localhost:5000/api/marketplace/${id}`,
+        {
+          method: "DELETE"
+        }
+      );
 
-    localStorage.setItem(
-      "marketplaceItems",
-      JSON.stringify(updated)
-    );
+      const data = await response.json();
 
+      if (!response.ok) {
+        alert(data.error || "Failed to delete item");
+        return;
+      }
+
+      setItems(prevItems =>
+        prevItems.filter(item => item.id !== id)
+      );
+
+    } catch (err) {
+
+      console.error(err);
+      alert("Could not connect to the server.");
+
+    }
   }
 
   return (
+    <div className="admin-page">
 
-<div className="admin-page">
+      <AdminSidebar />
 
-<AdminSidebar />
+      <div className="admin-content">
 
-<div className="admin-content">
+        <h1>Marketplace Management</h1>
 
-<h1>Marketplace Management</h1>
+        <div className="admin-form">
 
-<div className="admin-form">
+          <input
+            type="text"
+            placeholder="Item Name"
+            value={newItem.title}
+            onChange={(e) =>
+              setNewItem({
+                ...newItem,
+                title: e.target.value
+              })
+            }
+          />
 
-<input
-type="text"
-placeholder="Item Name"
-value={newItem.title}
-onChange={(e)=>
-setNewItem({
-...newItem,
-title:e.target.value
-})
-}
-/>
+          <input
+            type="number"
+            placeholder="Price (KES)"
+            value={newItem.price}
+            onChange={(e) =>
+              setNewItem({
+                ...newItem,
+                price: e.target.value
+              })
+            }
+          />
 
-<input
-type="text"
-placeholder="Price"
-value={newItem.price}
-onChange={(e)=>
-setNewItem({
-...newItem,
-price:e.target.value
-})
-}
-/>
+          <select
+            value={newItem.category}
+            onChange={(e) =>
+              setNewItem({
+                ...newItem,
+                category: e.target.value
+              })
+            }
+          >
+            <option>Books</option>
+            <option>Electronics</option>
+            <option>Furniture</option>
+            <option>Fashion</option>
+            <option>Other</option>
+          </select>
 
-<input
-type="text"
-placeholder="Seller"
-value={newItem.seller}
-onChange={(e)=>
-setNewItem({
-...newItem,
-seller:e.target.value
-})
-}
-/>
+          <input
+            type="text"
+            placeholder="Seller Name"
+            value={newItem.seller}
+            onChange={(e) =>
+              setNewItem({
+                ...newItem,
+                seller: e.target.value
+              })
+            }
+          />
 
-<button onClick={addItem}>
-Add Item
-</button>
+          <input
+            type="email"
+            placeholder="Seller Email"
+            value={newItem.sellerEmail}
+            onChange={(e) =>
+              setNewItem({
+                ...newItem,
+                sellerEmail: e.target.value
+              })
+            }
+          />
 
-</div>
+          <input
+            type="text"
+            placeholder="Description"
+            value={newItem.description}
+            onChange={(e) =>
+              setNewItem({
+                ...newItem,
+                description: e.target.value
+              })
+            }
+          />
 
-<table className="admin-table">
+          <select
+            value={newItem.emoji}
+            onChange={(e) =>
+              setNewItem({
+                ...newItem,
+                emoji: e.target.value
+              })
+            }
+          >
+            <option>📦</option>
+            <option>📚</option>
+            <option>💻</option>
+            <option>📱</option>
+            <option>🪑</option>
+            <option>🎧</option>
+            <option>⌚</option>
+            <option>👕</option>
+          </select>
 
-<thead>
+          <button onClick={addItem}>
+            Add Item
+          </button>
 
-<tr>
+        </div>
 
-<th>Item</th>
+        <table className="admin-table">
 
-<th>Price</th>
+          <thead>
+            <tr>
+              <th>Item</th>
+              <th>Price</th>
+              <th>Category</th>
+              <th>Seller</th>
+              <th>Action</th>
+            </tr>
+          </thead>
 
-<th>Seller</th>
+          <tbody>
 
-<th>Action</th>
+            {items.map((item) => (
 
-</tr>
+              <tr key={item.id}>
 
-</thead>
+                <td>{item.emoji} {item.title}</td>
 
-<tbody>
+                <td>
+                  KES {Number(item.price).toLocaleString()}
+                </td>
 
-{items.map((item)=>(
+                <td>{item.category}</td>
 
-<tr key={item.id}>
+                <td>{item.seller}</td>
 
-<td>{item.title}</td>
+                <td>
 
-<td>{item.price}</td>
+                  <button
+                    className="delete-btn"
+                    onClick={() => deleteItem(item.id)}
+                  >
+                    Delete
+                  </button>
 
-<td>{item.seller}</td>
+                </td>
 
-<td>
+              </tr>
 
-<button
-className="delete-btn"
-onClick={()=>deleteItem(item.id)}
->
+            ))}
 
-Delete
+          </tbody>
 
-</button>
+        </table>
 
-</td>
+      </div>
 
-</tr>
-
-))}
-
-</tbody>
-
-</table>
-
-</div>
-
-</div>
-
+    </div>
   );
-
 }
 
 export default AdminMarketplace;

@@ -1,194 +1,308 @@
 import { useState, useEffect } from "react";
 import Sidebar from "../components/Sidebar";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "../styles/events.css";
 
 function Events() {
 
-const currentUser = JSON.parse(localStorage.getItem("loggedInUser"));
+  const navigate = useNavigate();
 
-const eventKey = currentUser
-  ? "registeredEvents_" + currentUser.email
-  : "registeredEvents_guest";
+  const currentUser = JSON.parse(
+    localStorage.getItem("loggedInUser")
+  );
 
-const [search, setSearch] = useState("");
+  const [search, setSearch] = useState("");
 
-const [registeredEvents, setRegisteredEvents] = useState([]);
+  const [registeredEvents, setRegisteredEvents] = useState([]);
 
-useEffect(() => {
+  const [events, setEvents] = useState([]);
 
-const saved = JSON.parse(localStorage.getItem(eventKey)) || [];
 
-setRegisteredEvents(saved);
+  // Load events and user's registrations from MySQL
+  useEffect(() => {
 
-}, [eventKey]);
+    if (!currentUser) {
+      navigate("/login");
+      return;
+    }
 
-const [events, setEvents] = useState([]);
+    async function loadData() {
 
-useEffect(() => {
+      try {
 
-const savedEvents =
-JSON.parse(localStorage.getItem("events")) || [];
+        // Load all events
+        const eventsResponse = await fetch(
+          "http://localhost:5000/api/events"
+        );
 
-setEvents(savedEvents);
+        if (!eventsResponse.ok) {
+          throw new Error("Failed to fetch events");
+        }
 
-const savedRegistered =
-JSON.parse(localStorage.getItem(eventKey)) || [];
+        const eventsData =
+          await eventsResponse.json();
 
-setRegisteredEvents(savedRegistered);
+        setEvents(eventsData);
 
-}, [eventKey]);
 
-const filteredEvents = events.filter(event =>
-event.title.toLowerCase().includes(search.toLowerCase())
-);
+        // Load this user's registered events
+        const registrationResponse = await fetch(
+          `http://localhost:5000/api/events/registrations/user/${currentUser.id}`
+        );
 
-function registerEvent(eventTitle){
+        if (!registrationResponse.ok) {
+          throw new Error(
+            "Failed to fetch registrations"
+          );
+        }
 
-if(registeredEvents.includes(eventTitle)){
+        const registrationData =
+          await registrationResponse.json();
 
-alert("You have already registered for this event.");
+        setRegisteredEvents(registrationData);
 
-return;
+      } catch (error) {
 
-}
+        console.error(error);
 
-const updatedEvents = [...registeredEvents,eventTitle];
+        alert(
+          "Could not load events from the server."
+        );
 
-setRegisteredEvents(updatedEvents);
+      }
 
-localStorage.setItem(
+    }
 
-eventKey,
+    loadData();
 
-JSON.stringify(updatedEvents)
+  }, [navigate, currentUser?.id]);
 
-);
 
-alert("Successfully registered!");
+  // Search events
+  const filteredEvents = events.filter(event =>
+    event.title
+      .toLowerCase()
+      .includes(search.toLowerCase())
+  );
 
-}
 
-return (
+  // Check whether user is registered for an event
+  function isRegistered(eventId) {
 
-<div className="dashboard">
+    return registeredEvents.some(
+      registration =>
+        registration.eventId === eventId
+    );
 
-<Sidebar />
+  }
 
-<main className="main-content">
 
-<section className="events-hero">
+  // Register for an event
+  async function registerEvent(event) {
 
-<h1>📅 Campus Events</h1>
+    if (!currentUser) {
+      navigate("/login");
+      return;
+    }
 
-<p>
+    if (isRegistered(event.id)) {
 
-Discover workshops, hackathons, sports,
-career fairs and university activities.
+      alert(
+        "You have already registered for this event."
+      );
 
-</p>
+      return;
 
-</section>
+    }
 
-<section className="events-summary">
+    try {
 
-<div className="summary-card">
+      const response = await fetch(
+        `http://localhost:5000/api/events/${event.id}/register`,
+        {
+          method: "POST",
 
-<h3>Registered Events</h3>
+          headers: {
+            "Content-Type": "application/json"
+          },
 
-<h1>{registeredEvents.length}</h1>
+          body: JSON.stringify({
+            userId: currentUser.id
+          })
+        }
+      );
 
-<p>
+      const data =
+        await response.json();
 
-You're registered for {registeredEvents.length} event{registeredEvents.length!==1 && "s"}
+      if (!response.ok) {
 
-</p>
+        alert(
+          data.error ||
+          "Failed to register for event."
+        );
 
-</div>
+        return;
 
-</section>
+      }
 
-<div className="event-search">
 
-<input
+      // Add the registration to the page immediately
+      setRegisteredEvents(prev => [
+        ...prev,
+        {
+          eventId: event.id,
+          title: event.title,
+          date: event.date,
+          location: event.location,
+          category: event.category
+        }
+      ]);
 
-type="text"
 
-placeholder="Search events..."
+      alert(
+        "Successfully registered!"
+      );
 
-value={search}
+    } catch (error) {
 
-onChange={(e)=>setSearch(e.target.value)}
+      console.error(error);
 
-/>
+      alert(
+        "Could not connect to the server."
+      );
 
-</div>
+    }
 
-<div className="events-grid">
+  }
 
-{filteredEvents.map(event=>(
 
-<div className="event-card" key={event.id}>
+  return (
 
-<h3>{event.title}</h3>
+    <div className="dashboard">
 
-<span>{event.date}</span>
+      <Sidebar />
 
-<p>{event.description}</p>
+      <main className="main-content">
 
-<div className="event-info">
 
-<p>🕒 {event.time}</p>
+        <section className="events-hero">
 
-<p>📍 {event.location}</p>
+          <h1>📅 Campus Events</h1>
 
-</div>
+          <p>
+            Discover workshops, hackathons, sports,
+            career fairs and university activities.
+          </p>
 
-<div className="event-buttons">
+        </section>
 
-<Link
 
-to={`/event-details/${event.id}`}
+        <section className="events-summary">
 
-className="details-btn"
+          <div className="summary-card">
 
->
+            <h3>Registered Events</h3>
 
-View Event
+            <h1>{registeredEvents.length}</h1>
 
-</Link>
+            <p>
 
-<button
+              You're registered for{" "}
+              {registeredEvents.length} event
+              {registeredEvents.length !== 1 && "s"}
 
-className="register-btn"
+            </p>
 
-onClick={()=>registerEvent(event.title)}
+          </div>
 
-disabled={registeredEvents.includes(event.title)}
+        </section>
 
->
 
-{registeredEvents.includes(event.title)
+        <div className="event-search">
 
-? "✓ Registered"
+          <input
+            type="text"
+            placeholder="Search events..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
 
-: "Register"}
+        </div>
 
-</button>
 
-</div>
+        <div className="events-grid">
 
-</div>
+          {filteredEvents.map(event => (
 
-))}
+            <div
+              className="event-card"
+              key={event.id}
+            >
 
-</div>
+              <h3>
+                {event.title}
+              </h3>
 
-</main>
+              <span>
+                {event.date}
+              </span>
 
-</div>
+              <p>
+                {event.description}
+              </p>
 
-);
+              <div className="event-info">
+
+                <p>
+                  🕒 {event.time}
+                </p>
+
+                <p>
+                  📍 {event.location}
+                </p>
+
+              </div>
+
+
+              <div className="event-buttons">
+
+                <Link
+                  to={`/event-details/${event.id}`}
+                  className="details-btn"
+                >
+                  View Event
+                </Link>
+
+
+                <button
+                  className="register-btn"
+                  onClick={() =>
+                    registerEvent(event)
+                  }
+                  disabled={isRegistered(event.id)}
+                >
+
+                  {isRegistered(event.id)
+                    ? "✓ Registered"
+                    : "Register"
+                  }
+
+                </button>
+
+              </div>
+
+            </div>
+
+          ))}
+
+        </div>
+
+      </main>
+
+    </div>
+
+  );
 
 }
 

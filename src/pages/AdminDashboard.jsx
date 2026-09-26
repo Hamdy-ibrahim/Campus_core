@@ -1,131 +1,363 @@
+import { useEffect, useState } from "react";
 import AdminSidebar from "../components/AdminSidebar";
 import { useNavigate } from "react-router-dom";
 import "../styles/dashboard.css";
 
-function AdminDashboard(){
+function AdminDashboard() {
 
-const students =
-JSON.parse(localStorage.getItem("users")) || [];
+  const navigate = useNavigate();
 
-const announcements =
-JSON.parse(localStorage.getItem("announcements")) || [];
+  const [students, setStudents] = useState([]);
+  const [announcements, setAnnouncements] = useState([]);
+  const [marketplace, setMarketplace] = useState([]);
+  const [clubs, setClubs] = useState([]);
+  const [events, setEvents] = useState([]);
 
-const marketplace =
-JSON.parse(localStorage.getItem("marketplaceItems")) || [];
+  useEffect(() => {
 
-const clubs =
-JSON.parse(localStorage.getItem("clubs")) || [];
+    // ================================
+    // LOAD STUDENTS
+    // ================================
 
-const events =
-JSON.parse(localStorage.getItem("events")) || [];
+    fetch(
+      "http://localhost:5000/api/signup"
+    )
+      .then(res => {
+
+        if (!res.ok) {
+          throw new Error(
+            "Failed to load students"
+          );
+        }
+
+        return res.json();
+
+      })
+      .then(data => {
+
+        setStudents(data);
+
+      })
+      .catch(err => {
+
+        console.error(
+          "Failed to load students:",
+          err
+        );
+
+      });
 
 
+    // ================================
+    // LOAD CLUBS
+    // ================================
 
-const navigate = useNavigate();
+    fetch(
+      "http://localhost:5000/api/clubs"
+    )
+      .then(res => {
 
-return(
+        if (!res.ok) {
+          throw new Error(
+            "Failed to load clubs"
+          );
+        }
 
-<div className="dashboard">
+        return res.json();
 
-<AdminSidebar/>
+      })
+      .then(data => {
 
-<main className="main-content">
+        setClubs(data);
 
-<div className="dashboard-header">
+      })
+      .catch(err => {
 
-<div>
+        console.error(
+          "Failed to load clubs:",
+          err
+        );
 
-<h1>Administrator Dashboard</h1>
+      });
 
-<p>
 
-Manage CampusCore from one place.
+    // ================================
+    // LOAD EVENTS
+    // ================================
 
-</p>
+    fetch(
+      "http://localhost:5000/api/events"
+    )
+      .then(res => {
 
-</div>
+        if (!res.ok) {
+          throw new Error(
+            "Failed to load events"
+          );
+        }
 
-</div>
+        return res.json();
 
-<div className="dashboard-cards">
+      })
+      .then(data => {
 
-<div className="dashboard-card">
-<h3>Students</h3>
-<h1>{students.length}</h1>
-</div>
+        setEvents(data);
 
-<div className="dashboard-card">
-<h3>Clubs</h3>
-<h1>{clubs.length}</h1>
-</div>
+      })
+      .catch(err => {
 
-<div className="dashboard-card">
-<h3>Events</h3>
-<h1>{events.length}</h1>
-</div>
+        console.error(
+          "Failed to load events:",
+          err
+        );
 
-<div className="dashboard-card">
-<h3>Marketplace</h3>
-<h1>{marketplace.length}</h1>
-</div>
+      });
 
-<div className="dashboard-card">
-<h3>Announcements</h3>
-<h1>{announcements.length}</h1>
-</div>
 
-</div>
+    // ================================
+    // LOAD MARKETPLACE
+    // ================================
 
-<div className="dashboard-grid">
+    fetch(
+      "http://localhost:5000/api/marketplace"
+    )
+      .then(res => {
 
-<div className="recent">
+        if (!res.ok) {
+          throw new Error(
+            "Failed to load marketplace"
+          );
+        }
 
-<h2>📊 System Overview</h2>
+        return res.json();
 
-<ul>
+      })
+      .then(data => {
 
-<li>👨‍🎓 Registered Students: {students.length}</li>
+        setMarketplace(data);
 
-<li>🏛 Active Clubs: {clubs.length}</li>
+      })
+      .catch(err => {
 
-<li>📅 Upcoming Events: {events.length}</li>
+        console.error(
+          "Failed to load marketplace:",
+          err
+        );
 
-<li>🛒 Marketplace Listings: {marketplace.length}</li>
+      });
 
-<li>📢 Announcements Posted: {announcements.length}</li>
-</ul>
 
-</div>
+    // ================================
+    // LOAD ANNOUNCEMENTS
+    // ================================
 
-<div className="recent">
+    fetch(
+      "http://localhost:5000/api/announcements"
+    )
+      .then(res => {
 
-<h2>⚡ Quick Actions</h2>
+        if (!res.ok) {
+          throw new Error(
+            "Failed to load announcements"
+          );
+        }
 
-<div className="quick-actions">
+        return res.json();
 
-<button onClick={() => navigate("/admin/clubs")}>
-Create Club
-</button>
+      })
+      .then(data => {
 
-<button onClick={() => navigate("/admin/events")}>
-Create Event
-</button>
+        setAnnouncements(data);
 
-<button onClick={() => navigate("/admin/announcements")}>
-Post Announcement
-</button>
+      })
+      .catch(err => {
 
-</div>
+        console.error(
+          "Failed to load announcements:",
+          err
+        );
 
-</div>
+      });
 
-</div>
+  }, []);
 
-</main>
 
-</div>
+  return (
 
-);
+    <div className="dashboard">
+
+      <AdminSidebar />
+
+      <main className="main-content">
+
+        <div className="dashboard-header">
+
+          <div>
+
+            <h1>
+              Administrator Dashboard
+            </h1>
+
+            <p>
+              Manage CampusCore from one place.
+            </p>
+
+          </div>
+
+        </div>
+
+
+        <div className="dashboard-cards">
+
+
+          <div className="dashboard-card">
+
+            <h3>
+              Students
+            </h3>
+
+            <h1>
+              {students.length}
+            </h1>
+
+          </div>
+
+
+          <div className="dashboard-card">
+
+            <h3>
+              Clubs
+            </h3>
+
+            <h1>
+              {clubs.length}
+            </h1>
+
+          </div>
+
+
+          <div className="dashboard-card">
+
+            <h3>
+              Events
+            </h3>
+
+            <h1>
+              {events.length}
+            </h1>
+
+          </div>
+
+
+          <div className="dashboard-card">
+
+            <h3>
+              Marketplace
+            </h3>
+
+            <h1>
+              {marketplace.length}
+            </h1>
+
+          </div>
+
+
+          <div className="dashboard-card">
+
+            <h3>
+              Announcements
+            </h3>
+
+            <h1>
+              {announcements.length}
+            </h1>
+
+          </div>
+
+
+        </div>
+
+
+        <div className="dashboard-grid">
+
+
+          <div className="recent">
+
+            <h2>
+              📊 System Overview
+            </h2>
+
+            <ul>
+
+              <li>
+                👨‍🎓 Registered Students: {students.length}
+              </li>
+
+              <li>
+                🏛 Active Clubs: {clubs.length}
+              </li>
+
+              <li>
+                📅 Upcoming Events: {events.length}
+              </li>
+
+              <li>
+                🛒 Marketplace Listings: {marketplace.length}
+              </li>
+
+              <li>
+                📢 Announcements Posted: {announcements.length}
+              </li>
+
+            </ul>
+
+          </div>
+
+
+          <div className="recent">
+
+            <h2>
+              ⚡ Quick Actions
+            </h2>
+
+            <div className="quick-actions">
+
+              <button
+                onClick={() =>
+                  navigate("/admin/clubs")
+                }
+              >
+                Create Club
+              </button>
+
+              <button
+                onClick={() =>
+                  navigate("/admin/events")
+                }
+              >
+                Create Event
+              </button>
+
+              <button
+                onClick={() =>
+                  navigate("/admin/announcements")
+                }
+              >
+                Post Announcement
+              </button>
+
+            </div>
+
+          </div>
+
+
+        </div>
+
+      </main>
+
+    </div>
+
+  );
 
 }
 

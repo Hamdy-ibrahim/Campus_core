@@ -5,168 +5,217 @@ import "../styles/shared.css";
 
 function SellItem() {
 
-const navigate = useNavigate();
+  const navigate = useNavigate();
 
-const currentUser = JSON.parse(
-localStorage.getItem("loggedInUser")
-);
+  const currentUser = JSON.parse(
+    localStorage.getItem("loggedInUser")
+  );
 
-const [title,setTitle] = useState("");
-const [price,setPrice] = useState("");
-const [category,setCategory] = useState("");
-const [description,setDescription] = useState("");
-const [emoji,setEmoji] = useState("📦");
+  const [title, setTitle] = useState("");
+  const [price, setPrice] = useState("");
+  const [category, setCategory] = useState("");
+  const [description, setDescription] = useState("");
+  const [emoji, setEmoji] = useState("📦");
 
-function submitItem(e){
+  async function submitItem(e) {
 
-e.preventDefault();
+    e.preventDefault();
 
-const items = JSON.parse(
-localStorage.getItem("marketplaceItems")
-) || [];
+    if (!currentUser) {
+      alert("Please log in before selling an item.");
+      return;
+    }
 
-const newItem = {
+    try {
 
-id: Date.now(),
+      const response = await fetch(
+        "http://localhost:5000/api/marketplace",
+        {
+          method: "POST",
 
-title,
+          headers: {
+            "Content-Type": "application/json"
+          },
 
-price,
+          body: JSON.stringify({
 
-category,
+            title,
+            price,
+            category,
+            description,
+            emoji,
 
-description,
+            seller: currentUser.fullname,
+            sellerEmail: currentUser.email
 
-emoji,
+          })
+        }
+      );
 
-seller: currentUser.fullname,
+      const data = await response.json();
 
-sellerEmail: currentUser.email
+      if (!response.ok) {
 
-};
+        alert(
+          data.error || "Failed to list item."
+        );
 
-items.push(newItem);
+        return;
+      }
 
-localStorage.setItem(
-"marketplaceItems",
-JSON.stringify(items)
-);
+      alert("Item listed successfully!");
 
-alert("Item listed successfully!");
+      navigate("/marketplace");
 
-navigate("/marketplace");
+    } catch (err) {
 
-}
+      console.error(err);
 
-return(
+      alert(
+        "Could not connect to the server."
+      );
 
-<div className="dashboard">
+    }
+  }
 
-<Sidebar/>
+  return (
 
-<main className="main-content">
+    <div className="dashboard">
 
-<section className="market-hero">
+      <Sidebar />
 
-<h1>🛒 Sell an Item</h1>
+      <main className="main-content">
 
-<p>
+        <section className="market-hero">
 
-Post an item for other students to buy.
+          <h1>🛒 Sell an Item</h1>
 
-</p>
+          <p>
+            Post an item for other students to buy.
+          </p>
 
-</section>
+        </section>
 
-<form
-className="sell-form"
-onSubmit={submitItem}
->
+        <form
+          className="sell-form"
+          onSubmit={submitItem}
+        >
 
-<label>Item Name</label>
+          <label>
+            Item Name
+          </label>
 
-<input
-type="text"
-required
-value={title}
-onChange={(e)=>setTitle(e.target.value)}
-/>
+          <input
+            type="text"
+            required
+            value={title}
+            onChange={(e) =>
+              setTitle(e.target.value)
+            }
+          />
 
-<label>Price (KES)</label>
+          <label>
+            Price (KES)
+          </label>
 
-<input
-type="number"
-required
-value={price}
-onChange={(e)=>setPrice(e.target.value)}
-/>
+          <input
+            type="number"
+            required
+            min="0"
+            value={price}
+            onChange={(e) =>
+              setPrice(e.target.value)
+            }
+          />
 
-<label>Category</label>
+          <label>
+            Category
+          </label>
 
-<select
-required
-value={category}
-onChange={(e)=>setCategory(e.target.value)}
->
+          <select
+            required
+            value={category}
+            onChange={(e) =>
+              setCategory(e.target.value)
+            }
+          >
 
-<option value="">Choose Category</option>
+            <option value="">
+              Choose Category
+            </option>
 
-<option>Books</option>
+            <option>
+              Books
+            </option>
 
-<option>Electronics</option>
+            <option>
+              Electronics
+            </option>
 
-<option>Furniture</option>
+            <option>
+              Furniture
+            </option>
 
-<option>Fashion</option>
+            <option>
+              Fashion
+            </option>
 
-<option>Other</option>
+            <option>
+              Other
+            </option>
 
-</select>
+          </select>
 
-<label>Emoji</label>
+          <label>
+            Emoji
+          </label>
 
-<select
-value={emoji}
-onChange={(e)=>setEmoji(e.target.value)}
->
+          <select
+            value={emoji}
+            onChange={(e) =>
+              setEmoji(e.target.value)
+            }
+          >
 
-<option>📚</option>
-<option>💻</option>
-<option>📱</option>
-<option>🪑</option>
-<option>🎧</option>
-<option>⌚</option>
-<option>👕</option>
-<option>📦</option>
+            <option>📚</option>
+            <option>💻</option>
+            <option>📱</option>
+            <option>🪑</option>
+            <option>🎧</option>
+            <option>⌚</option>
+            <option>👕</option>
+            <option>📦</option>
 
-</select>
+          </select>
 
-<label>Description</label>
+          <label>
+            Description
+          </label>
 
-<textarea
-rows="5"
-required
-value={description}
-onChange={(e)=>setDescription(e.target.value)}
-></textarea>
+          <textarea
+            rows="5"
+            required
+            value={description}
+            onChange={(e) =>
+              setDescription(e.target.value)
+            }
+          >
+          </textarea>
 
-<button
-className="sell-submit"
-type="submit"
->
+          <button
+            className="sell-submit"
+            type="submit"
+          >
+            Post Item
+          </button>
 
-Post Item
+        </form>
 
-</button>
+      </main>
 
-</form>
+    </div>
 
-</main>
-
-</div>
-
-);
-
+  );
 }
 
 export default SellItem;

@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import AdminSidebar from "../components/AdminSidebar";
 import "../styles/admin.css";
@@ -13,218 +14,308 @@ function AdminEvents() {
     category: ""
   });
 
+  // Load events from the database when the page opens
   useEffect(() => {
 
-    const saved =
-      JSON.parse(localStorage.getItem("events")) || [
+    async function fetchEvents() {
 
-        {
-          id:1,
-          title:"Hackathon 2026",
-          date:"20 July 2026",
-          location:"ICT Lab",
-          category:"Technology"
-        },
+      try {
 
-        {
-          id:2,
-          title:"Career Fair",
-          date:"25 July 2026",
-          location:"Main Hall",
-          category:"Career"
+        const response = await fetch(
+          "http://localhost:5000/api/events"
+        );
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch events");
         }
 
-      ];
+        const data = await response.json();
 
-    localStorage.setItem(
-      "events",
-      JSON.stringify(saved)
-    );
+        setEvents(data);
 
-    setEvents(saved);
+      } catch (error) {
+
+        console.error(error);
+
+        alert("Could not load events from the server.");
+
+      }
+
+    }
+
+    fetchEvents();
 
   }, []);
 
-  function addEvent(){
 
-    if(
-      !newEvent.title ||
-      !newEvent.date ||
-      !newEvent.location ||
-      !newEvent.category
-    ){
-      alert("Please fill all fields.");
-      return;
-    }
-
-    const updated=[
-      ...events,
-      {
-        id:Date.now(),
-        ...newEvent
-      }
-    ];
-
-    setEvents(updated);
-
-    localStorage.setItem(
-      "events",
-      JSON.stringify(updated)
-    );
+  // Handle changes in the Add Event form
+  function handleChange(e) {
 
     setNewEvent({
-      title:"",
-      date:"",
-      location:"",
-      category:""
+      ...newEvent,
+      [e.target.name]: e.target.value
     });
 
   }
 
-  function deleteEvent(id){
 
-    if(!window.confirm("Delete this event?")) return;
+  // Add a new event to MySQL through the API
+  async function addEvent() {
 
-    const updated=events.filter(
-      event=>event.id!==id
-    );
+    if (
+      !newEvent.title ||
+      !newEvent.date ||
+      !newEvent.location ||
+      !newEvent.category
+    ) {
 
-    setEvents(updated);
+      alert("Please fill all fields.");
 
-    localStorage.setItem(
-      "events",
-      JSON.stringify(updated)
-    );
+      return;
+
+    }
+
+    try {
+
+      const response = await fetch(
+        "http://localhost:5000/api/events",
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type": "application/json"
+          },
+
+          body: JSON.stringify(newEvent)
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+
+        alert(data.error || "Failed to add event.");
+
+        return;
+
+      }
+
+      // Add the newly created event to the page
+      setEvents([
+        ...events,
+        data
+      ]);
+
+      // Clear the form
+      setNewEvent({
+        title: "",
+        date: "",
+        location: "",
+        category: ""
+      });
+
+      alert("Event added successfully!");
+
+    } catch (error) {
+
+      console.error(error);
+
+      alert("Could not reach the server.");
+
+    }
 
   }
 
-  return(
 
-<div className="admin-page">
+  // Delete an event from MySQL through the API
+  async function deleteEvent(id) {
 
-<AdminSidebar/>
+    if (!window.confirm("Delete this event?")) {
+      return;
+    }
 
-<div className="admin-content">
+    try {
 
-<h1>Event Management</h1>
+      const response = await fetch(
+        `http://localhost:5000/api/events/${id}`,
+        {
+          method: "DELETE"
+        }
+      );
 
-<div className="admin-form">
+      const data = await response.json();
 
-<input
-type="text"
-placeholder="Event Title"
-value={newEvent.title}
-onChange={(e)=>
-setNewEvent({
-...newEvent,
-title:e.target.value
-})
-}
-/>
+      if (!response.ok) {
 
-<input
-type="text"
-placeholder="Date"
-value={newEvent.date}
-onChange={(e)=>
-setNewEvent({
-...newEvent,
-date:e.target.value
-})
-}
-/>
+        alert(data.error || "Failed to delete event.");
 
-<input
-type="text"
-placeholder="Location"
-value={newEvent.location}
-onChange={(e)=>
-setNewEvent({
-...newEvent,
-location:e.target.value
-})
-}
-/>
+        return;
 
-<select
-value={newEvent.category}
-onChange={(e)=>
-setNewEvent({
-...newEvent,
-category:e.target.value
-})
-}
->
+      }
 
-<option value="">Category</option>
-<option>Technology</option>
-<option>Career</option>
-<option>Sports</option>
-<option>Academic</option>
-<option>Entertainment</option>
+      // Remove the deleted event from the page
+      setEvents(
+        events.filter(event => event.id !== id)
+      );
 
-</select>
+      alert("Event deleted successfully!");
 
-<button onClick={addEvent}>
-Add Event
-</button>
+    } catch (error) {
 
-</div>
+      console.error(error);
 
-<table className="admin-table">
+      alert("Could not reach the server.");
 
-<thead>
+    }
 
-<tr>
+  }
 
-<th>Title</th>
-<th>Date</th>
-<th>Location</th>
-<th>Category</th>
-<th>Action</th>
 
-</tr>
+  return (
 
-</thead>
+    <div className="admin-page">
 
-<tbody>
+      <AdminSidebar />
 
-{events.map((event)=>(
+      <div className="admin-content">
 
-<tr key={event.id}>
+        <h1>Event Management</h1>
 
-<td>{event.title}</td>
 
-<td>{event.date}</td>
+        <div className="admin-form">
 
-<td>{event.location}</td>
+          <input
+            type="text"
+            name="title"
+            placeholder="Event Title"
+            value={newEvent.title}
+            onChange={handleChange}
+          />
 
-<td>{event.category}</td>
 
-<td>
+          <input
+            type="text"
+            name="date"
+            placeholder="Date"
+            value={newEvent.date}
+            onChange={handleChange}
+          />
 
-<button
-className="delete-btn"
-onClick={()=>deleteEvent(event.id)}
->
 
-Delete
+          <input
+            type="text"
+            name="location"
+            placeholder="Location"
+            value={newEvent.location}
+            onChange={handleChange}
+          />
 
-</button>
 
-</td>
+          <select
+            name="category"
+            value={newEvent.category}
+            onChange={handleChange}
+          >
 
-</tr>
+            <option value="">
+              Category
+            </option>
 
-))}
+            <option>
+              Technology
+            </option>
 
-</tbody>
+            <option>
+              Career
+            </option>
 
-</table>
+            <option>
+              Sports
+            </option>
 
-</div>
+            <option>
+              Academic
+            </option>
 
-</div>
+            <option>
+              Entertainment
+            </option>
+
+          </select>
+
+
+          <button onClick={addEvent}>
+            Add Event
+          </button>
+
+        </div>
+
+
+        <table className="admin-table">
+
+          <thead>
+
+            <tr>
+
+              <th>Title</th>
+
+              <th>Date</th>
+
+              <th>Location</th>
+
+              <th>Category</th>
+
+              <th>Action</th>
+
+            </tr>
+
+          </thead>
+
+
+          <tbody>
+
+            {events.map((event) => (
+
+              <tr key={event.id}>
+
+                <td>
+                  {event.title}
+                </td>
+
+                <td>
+                  {event.date}
+                </td>
+
+                <td>
+                  {event.location}
+                </td>
+
+                <td>
+                  {event.category}
+                </td>
+
+                <td>
+
+                  <button
+                    className="delete-btn"
+                    onClick={() => deleteEvent(event.id)}
+                  >
+                    Delete
+                  </button>
+
+                </td>
+
+              </tr>
+
+            ))}
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    </div>
 
   );
 

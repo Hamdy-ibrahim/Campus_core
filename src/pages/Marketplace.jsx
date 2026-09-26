@@ -2,226 +2,128 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
 import "../styles/shared.css";
-import SellItem from "./SellItem";
 
 function Marketplace() {
 
-const currentUser = JSON.parse(
-localStorage.getItem("loggedInUser")
-);
+  const [search, setSearch] = useState("");
+  const [items, setItems] = useState([]);
 
-const [search, setSearch] = useState("");
+  // Get marketplace items from API
+  useEffect(() => {
 
-const [items, setItems] = useState([]);
+    fetch("http://localhost:5000/api/marketplace?status=active")
+      .then(res => res.json())
+      .then(data => {
+        setItems(data);
+      })
+      .catch(err => {
+        console.error("Failed to load marketplace:", err);
+      });
 
-useEffect(()=>{
+  }, []);
 
-const savedItems = JSON.parse(
-localStorage.getItem("marketplaceItems")
-);
+  // Search items
+  const filteredItems = items.filter(item =>
+    item.title.toLowerCase().includes(search.toLowerCase())
+  );
 
-if(savedItems){
+  return (
+    <div className="dashboard">
 
-setItems(savedItems);
+      <Sidebar />
 
-}
-else{
+      <main className="main-content">
 
-const demoItems=[
+        <section className="market-hero">
 
-{
-id:1,
-emoji:"💻",
-title:"Dell Latitude Laptop",
-category:"Electronics",
-price:45000,
-seller:"Brian",
-SellerEmail:"brian@strathmore.edu",
-description:"Core i7 • 16GB RAM • 512GB SSD"
-},
+          <h1>🛒 Marketplace</h1>
 
-{
-id:2,
-emoji:"📚",
-title:"Java Programming Book",
-category:"Books",
-price:1200,
-seller:"Mary",
-SellerEmail:"mary@strathmore.edu",
-description:"Excellent condition."
-},
+          <p>
+            Buy and sell items with fellow students.
+          </p>
 
-{
-id:3,
-emoji:"🪑",
-title:"Study Chair",
-category:"Furniture",
-price:3500,
-seller:"Kevin",
-SellerEmail:"kevin@strathmore.edu",
-description:"Comfortable wooden chair."
-},
+        </section>
 
-{
-id:4,
-emoji:"🎧",
-title:"Wireless Headphones",
-category:"Electronics",
-price:5000,
-seller:"Sarah",
-SellerEmail:"sarah@strathmore.edu",
-description:"Noise cancelling."
-}
+        <section className="market-summary">
 
-];
+          <div className="summary-card">
 
-localStorage.setItem(
-"marketplaceItems",
-JSON.stringify(demoItems)
-);
+            <h3>Available Listings</h3>
 
-setItems(demoItems);
+            <h1>{items.length}</h1>
 
-}
+            <p>
+              Browse great deals around campus.
+            </p>
 
-},[]);
+          </div>
 
-const filteredItems = items.filter(item=>
+          <Link
+            to="/sell-item"
+            className="sell-btn"
+          >
+            + Sell Item
+          </Link>
 
-item.title.toLowerCase().includes(search.toLowerCase())
+        </section>
 
-);
+        <div className="market-search">
 
-return(
+          <input
+            type="text"
+            placeholder="Search items..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
 
-<div className="dashboard">
+        </div>
 
-<Sidebar/>
+        <div className="market-grid">
 
-<main className="main-content">
+          {filteredItems.map(item => (
 
-<section className="market-hero">
+            <div
+              className="market-card"
+              key={item.id}
+            >
 
-<h1>🛒 Marketplace</h1>
+              <div className="market-emoji">
+                {item.emoji}
+              </div>
 
-<p>
+              <h3>{item.title}</h3>
 
-Buy and sell items with fellow students.
+              <h2>
+                KES {Number(item.price).toLocaleString()}
+              </h2>
 
-</p>
+              <p>{item.description}</p>
 
-</section>
+              <span>
+                Seller: {item.seller}
+              </span>
 
-<section className="market-summary">
+              <div className="market-buttons">
 
-<div className="summary-card">
+                <Link
+                  to={`/marketplace/${item.id}`}
+                  className="details-btn"
+                >
+                  View Item
+                </Link>
 
-<h3>Available Listings</h3>
+              </div>
 
-<h1>{items.length}</h1>
+            </div>
 
-<p>
+          ))}
 
-Browse great deals around campus.
+        </div>
 
-</p>
+      </main>
 
-</div>
-
-<Link
-to="/sell-item"
-className="sell-btn"
->
-
-+ Sell Item
-
-</Link>
-
-</section>
-
-<div className="market-search">
-
-<input
-
-type="text"
-
-placeholder="Search items..."
-
-value={search}
-
-onChange={(e)=>setSearch(e.target.value)}
-
-/>
-
-</div>
-
-<div className="market-grid">
-
-{filteredItems.map(item=>(
-
-<div
-className="market-card"
-key={item.id}
->
-
-<div className="market-emoji">
-
-{item.emoji}
-
-</div>
-
-<h3>
-
-{item.title}
-
-</h3>
-
-<h2>
-
-KES {item.price}
-
-</h2>
-
-<p>
-
-{item.description}
-
-</p>
-
-<span>
-
-Seller: {item.seller}
-
-</span>
-
-<div className="market-buttons">
-
-<Link
-
-to={`/marketplace/${item.id}`}
-
-className="details-btn"
-
->
-
-View Item
-
-</Link>
-
-</div>
-
-</div>
-
-))}
-
-</div>
-
-</main>
-
-</div>
-
-);
-
+    </div>
+  );
 }
 
 export default Marketplace;
