@@ -37,6 +37,25 @@ app.use('/api/marketplace', marketplaceRoutes);
 const maintenanceRoutes = require("./routes/maintenance");
 app.use("/api/maintenance", maintenanceRoutes);
 
+// Provider API - Team 7 / FitCoach
+const integrationEventRoutes = require("./integration/events");
+app.use("/events", integrationEventRoutes);
+
+const integrationClubRoutes = require("./integration/clubs");
+app.use("/clubs", integrationClubRoutes);
+
+const integrationAnnouncementRoutes = require("./integration/announcements");
+app.use("/announcements", integrationAnnouncementRoutes);
+
+const integrationMarketplaceRoutes = require("./integration/marketplace");
+app.use("/marketplace", integrationMarketplaceRoutes);
+
+const profileRoutes = require("./integration/profile");
+const bindingRoutes = require("./integration/bindings");
+
+app.use("/fitcoach-users", profileRoutes);
+app.use("/fitcoach-users", bindingRoutes);
+
 // Server
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
