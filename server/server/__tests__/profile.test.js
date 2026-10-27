@@ -1,4 +1,4 @@
-
+process.env.API_KEYS = 'test-key-123';
 const request = require('supertest');
 const app = require('../app');
 const { randomUUID } = require('crypto');
@@ -20,9 +20,9 @@ describe('GET /fitcoach-users/:fitcoach_userId/profile', () => {
       return;
     }
 
-    const response = await request(app).get(
-      `/fitcoach-users/${rows[0].fitcoach_user_id}/profile`
-    );
+    const response = await request(app)
+  .get(`/fitcoach-users/${rows[0].fitcoach_user_id}/profile`)
+  .set('X-API-Key', 'test-key-123');
 
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty('student_id');
@@ -39,10 +39,9 @@ describe('GET /fitcoach-users/:fitcoach_userId/profile', () => {
   test('returns not found for an unknown FitCoach user', async () => {
     const unknownId = randomUUID();
 
-    const response = await request(app).get(
-      `/fitcoach-users/${unknownId}/profile`
-    );
-
+    const response = await request(app)
+  .get(`/fitcoach-users/${unknownId}/profile`)
+  .set('X-API-Key', 'test-key-123');
     expect(response.status).toBe(404);
   });
 });

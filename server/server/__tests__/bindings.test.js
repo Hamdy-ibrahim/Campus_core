@@ -1,4 +1,4 @@
-
+process.env.API_KEYS = 'test-key-123';
 const request = require('supertest');
 const app = require('../app');
 const db = require('../db');
@@ -7,8 +7,9 @@ const { randomUUID } = require('crypto');
 describe('POST /fitcoach-users/:fitcoach_userId/fitcoach-bindings', () => {
   test('rejects a request with missing required fields', async () => {
     const response = await request(app)
-      .post(`/fitcoach-users/${randomUUID()}/fitcoach-bindings`)
-      .send({});
+  .post(`/fitcoach-users/${randomUUID()}/fitcoach-bindings`)
+  .set('X-API-Key', 'test-key-123')
+  .send({});
 
     expect([400, 422]).toContain(response.status);
   });
@@ -32,13 +33,12 @@ describe('POST /fitcoach-users/:fitcoach_userId/fitcoach-bindings', () => {
 
     try {
       const response = await request(app)
-        .post(
-          `/fitcoach-users/${fitcoachUserId}/fitcoach-bindings`
-        )
-        .send({
-          campuscore_student_id: studentId,
-          verification_token: 'week7-test-token'
-        });
+  .post(`/fitcoach-users/${fitcoachUserId}/fitcoach-bindings`)
+  .set('X-API-Key', 'test-key-123')
+  .send({
+    campuscore_student_id: studentId,
+    verification_token: 'week7-test-token'
+  });
 
       expect(response.status).toBe(201);
       expect(response.body).toHaveProperty('binding_id');
@@ -50,13 +50,12 @@ describe('POST /fitcoach-users/:fitcoach_userId/fitcoach-bindings', () => {
       expect(Number.isNaN(Date.parse(response.body.bound_at))).toBe(false);
 
       const duplicateResponse = await request(app)
-        .post(
-          `/fitcoach-users/${fitcoachUserId}/fitcoach-bindings`
-        )
-        .send({
-          campuscore_student_id: studentId,
-          verification_token: 'week7-test-token'
-        });
+  .post(`/fitcoach-users/${fitcoachUserId}/fitcoach-bindings`)
+  .set('X-API-Key', 'test-key-123')
+  .send({
+    campuscore_student_id: studentId,
+    verification_token: 'week7-test-token'
+  });
 
       expect([400, 409]).toContain(duplicateResponse.status);
     } finally {

@@ -1,10 +1,12 @@
-
+process.env.API_KEYS = 'test-key-123';
 const request = require('supertest');
 const app = require('../app');
 
 describe('GET /announcements', () => {
   test('returns announcements with the expected structure', async () => {
-    const response = await request(app).get('/announcements');
+    const response = await request(app)
+      .get('/announcements')
+      .set('X-API-Key', 'test-key-123');
 
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty('announcements');

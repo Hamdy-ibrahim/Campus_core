@@ -1,11 +1,12 @@
-
+process.env.API_KEYS = 'test-key-123';
 const request = require('supertest');
 const app = require('../app');
 
 describe('GET /marketplace/listings', () => {
   test('returns active listings with the expected fields', async () => {
     const response = await request(app)
-      .get('/marketplace/listings?status=active');
+  .get('/marketplace/listings?status=active')
+  .set('X-API-Key', 'test-key-123');
 
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty('listings');
@@ -31,15 +32,15 @@ describe('GET /marketplace/listings', () => {
 
   test('rejects a missing status parameter', async () => {
     const response = await request(app)
-      .get('/marketplace/listings');
-
+  .get('/marketplace/listings')
+  .set('X-API-Key', 'test-key-123');
     expect(response.status).toBe(400);
   });
 
   test('rejects an invalid status parameter', async () => {
     const response = await request(app)
-      .get('/marketplace/listings?status=inactive');
-
+  .get('/marketplace/listings?status=inactive')
+  .set('X-API-Key', 'test-key-123');
     expect(response.status).toBe(400);
   });
 });

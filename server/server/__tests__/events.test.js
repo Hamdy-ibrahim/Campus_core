@@ -1,10 +1,14 @@
 
+process.env.API_KEYS = 'test-key-123';
+
 const request = require('supertest');
 const app = require('../app');
 
 describe('GET /events', () => {
   test('returns a list of events with the expected structure', async () => {
-    const response = await request(app).get('/events');
+    const response = await request(app)
+      .get('/events')
+      .set('X-API-Key', 'test-key-123');
 
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty('events');
@@ -25,7 +29,7 @@ describe('GET /events', () => {
       );
 
       console.log('Event start_time:', event.start_time);
-expect(Number.isNaN(Date.parse(event.start_time))).toBe(false);
+      expect(Number.isNaN(Date.parse(event.start_time))).toBe(false);
     });
   });
 });

@@ -1,10 +1,12 @@
-
+process.env.API_KEYS = 'test-key-123';
 const request = require('supertest');
 const app = require('../app');
 
 describe('GET /clubs', () => {
   test('returns a list of clubs with the expected structure', async () => {
-    const response = await request(app).get('/clubs');
+    const response = await request(app)
+  .get('/clubs')
+  .set('X-API-Key', 'test-key-123');
 
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty('clubs');
