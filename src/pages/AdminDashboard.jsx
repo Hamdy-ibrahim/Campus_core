@@ -3,6 +3,7 @@ import AdminSidebar from "../components/AdminSidebar";
 import { useNavigate } from "react-router-dom";
 import "../styles/dashboard.css";
 import PartnerTrends from "../components/PartnerTrends";
+import PartnerProducts from '../components/PartnerProducts';
 
 function AdminDashboard() {
 
@@ -356,10 +357,14 @@ function AdminDashboard() {
 
         {/* Team 5 Week 10 Integration */}
         <div className="dashboard-grid">
-          <div className="recent" style={{ gridColumn: "1 / -1" }}>
-            <PartnerTrends />
-          </div>
-        </div>
+  <div className="recent" style={{ gridColumn: "1 / -1" }}>
+    <PartnerTrends />
+  </div>
+
+  <div className="recent" style={{ gridColumn: "1 / -1" }}>
+    <PartnerProducts />
+  </div>
+</div>
 
       </main>
 

@@ -41,6 +41,10 @@ app.use('/api/marketplace', marketplaceRoutes);
 const maintenanceRoutes = require('./routes/maintenance');
 app.use('/api/maintenance', maintenanceRoutes);
 
+// Team 5 trends route — browser-facing route
+app.use('/api/partner', apiRateLimiter, require('./integration/partnerTrends'));
+app.use('/api/partner', apiRateLimiter, require('./integration/partnerProducts'));
+
 // Team 7 / FitCoach integration routes
 // These routes remain rate-limited and API-key protected.
 app.use(apiRateLimiter);
@@ -66,7 +70,6 @@ const bindingRoutes = require('./integration/bindings');
 app.use('/fitcoach-users', profileRoutes);
 app.use('/fitcoach-users', bindingRoutes);
 
-// Team 5 partner trends integration
-app.use('/api/partner', require('./integration/partnerTrends'));
+
 
 module.exports = app;
