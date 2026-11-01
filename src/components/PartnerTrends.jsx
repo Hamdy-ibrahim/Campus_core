@@ -7,6 +7,8 @@ export default function PartnerTrends() {
   const [trends, setTrends] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [stale, setStale] = useState(false);
+  const [asOf, setAsOf] = useState(null);
 
   const loadTrends = useCallback(async () => {
     setLoading(true);
@@ -26,6 +28,9 @@ export default function PartnerTrends() {
       }
 
       setTrends(data.trends);
+      setStale(data.stale === true);
+      setAsOf(data.asOf || null);
+
     } catch {
       setError("Product trends are temporarily unavailable.");
     } finally {
@@ -138,7 +143,7 @@ export default function PartnerTrends() {
       display: "inline-flex",
       alignItems: "center",
       gap: "7px",
-      color: error ? "#b91c1c" : "#15803d",
+      color: error ? "#b91c1c" : stale ? "#b45309" : "#15803d",
       fontSize: "12px",
       fontWeight: 600,
       marginTop: "8px",
@@ -150,6 +155,16 @@ export default function PartnerTrends() {
       color: error ? "#991b1b" : "#475569",
       fontSize: "14px",
     },
+    staleBanner: {
+      padding: "14px 16px",
+      marginBottom: "22px",
+      background: "#fff7ed",
+      border: "1px solid #fed7aa",
+      borderRadius: "8px",
+      color: "#9a3412",
+      fontSize: "13px",
+      lineHeight: 1.6,
+    },
   };
 
   return (
@@ -160,15 +175,19 @@ export default function PartnerTrends() {
           <p style={styles.subtitle}>
             Live product performance from the Billing System API
           </p>
+
           <div style={styles.status} role="status">
             <span aria-hidden="true">
               {error ? "●" : loading ? "○" : "●"}
             </span>
+
             {error
               ? "Data unavailable"
               : loading
-                ? "Loading live data..."
-                : "Connected to partner API"}
+                ? "Loading data..."
+                : stale
+                  ? "Showing saved partner data"
+                  : "Connected to partner API"}
           </div>
         </div>
 
@@ -196,6 +215,21 @@ export default function PartnerTrends() {
         </div>
       ) : (
         <>
+          {stale && (
+            <div style={styles.staleBanner} role="alert">
+              <strong>Partner data temporarily unavailable.</strong>
+              <br />
+              Showing previously saved product trends instead of live data.
+
+              {asOf && (
+                <div style={{ marginTop: "5px" }}>
+                  Last successful update:{" "}
+                  {new Date(asOf).toLocaleString()}
+                </div>
+              )}
+            </div>
+          )}
+
           <div style={styles.summaryGrid}>
             <div style={styles.summaryCard}>
               <p style={styles.summaryLabel}>Products tracked</p>
@@ -248,15 +282,18 @@ export default function PartnerTrends() {
                     <th style={styles.th}>Units sold</th>
                   </tr>
                 </thead>
+
                 <tbody>
                   {trends.map((item, index) => (
                     <tr
                       key={item.id ?? `${item.name}-${index}`}
                       style={{
-                        background: index % 2 === 0 ? "#ffffff" : "#fafbff",
+                        background:
+                          index % 2 === 0 ? "#ffffff" : "#fafbff",
                       }}
                     >
                       <td style={styles.td}>{index + 1}</td>
+
                       <td
                         style={{
                           ...styles.td,
@@ -266,9 +303,11 @@ export default function PartnerTrends() {
                       >
                         {item.name || "Unnamed product"}
                       </td>
+
                       <td style={styles.td}>
                         {(Number(item.viewCount) || 0).toLocaleString()}
                       </td>
+
                       <td style={styles.td}>
                         {(Number(item.unitsSold) || 0).toLocaleString()}
                       </td>

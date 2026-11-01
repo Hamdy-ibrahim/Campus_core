@@ -136,3 +136,38 @@
     font-size: 19px;
   }
 }
+
+.products-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.products-refresh-btn {
+  background: #4f46e5;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 15px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.products-refresh-btn:hover {
+  background: #4338ca;
+}
+
+.products-refresh-btn:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+@media (max-width: 600px) {
+  .partner-products-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

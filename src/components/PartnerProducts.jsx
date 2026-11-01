@@ -1,38 +1,79 @@
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import './PartnerProducts.css';
 
 export default function PartnerProducts() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    fetch('http://localhost:5000/api/partner/products')
-      .then((res) => {
-        if (!res.ok) throw new Error('Products unavailable');
-        return res.json();
-      })
-      .then((data) => setProducts(data.products || []))
-      .catch(() => setError('Unable to load partner products.'))
-      .finally(() => setLoading(false));
+  const loadProducts = useCallback(async () => {
+    setRefreshing(true);
+    setError('');
+
+    try {
+      const res = await fetch(
+        'http://localhost:5000/api/partner/products'
+      );
+
+      if (!res.ok) throw new Error('Products unavailable');
+
+      const data = await res.json();
+      setProducts(data.products || []);
+    } catch {
+      setError('Unable to load partner products. Please try again.');
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
   }, []);
+
+  useEffect(() => {
+    loadProducts();
+  }, [loadProducts]);
 
   return (
     <section className="partner-products">
       <div className="partner-products-header">
         <div>
-          <span className="partner-products-label">TEAM 5 · INTEGRATION</span>
+          <span className="partner-products-label">
+            TEAM 5 · INTEGRATION
+          </span>
           <h2>Product Catalogue</h2>
           <p>Live product data from the Billing System</p>
         </div>
-        <span className="product-count">{products.length} products</span>
+
+        <div className="products-header-actions">
+          <span className="product-count">
+            {products.length} products
+          </span>
+
+          <button
+            type="button"
+            className="products-refresh-btn"
+            onClick={loadProducts}
+            disabled={refreshing}
+          >
+            {refreshing ? 'Refreshing...' : '↻ Refresh'}
+          </button>
+        </div>
       </div>
 
       {loading ? (
         <p className="products-message">Loading products...</p>
       ) : error ? (
-        <p className="products-message error">{error}</p>
+        <div className="products-message error">
+          <p>{error}</p>
+          <button
+            type="button"
+            className="products-refresh-btn"
+            onClick={loadProducts}
+            disabled={refreshing}
+          >
+            Try again
+          </button>
+        </div>
       ) : products.length === 0 ? (
         <p className="products-message">No products found.</p>
       ) : (

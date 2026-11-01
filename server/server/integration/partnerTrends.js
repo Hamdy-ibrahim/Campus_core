@@ -1,7 +1,11 @@
 
 const express = require('express');
-
 const router = express.Router();
+
+const { fetchWithRetry } = require('./resilientFetch');
+
+// Store the most recent successful trends response in memory.
+let lastGood = null;
 
 router.get('/trends', async (req, res) => {
   const partnerUrl = process.env.PARTNER_URL;
@@ -24,7 +28,7 @@ router.get('/trends', async (req, res) => {
   try {
     const baseUrl = partnerUrl.replace(/\/+$/, '');
 
-    const response = await fetch(
+    const response = await fetchWithRetry(
       `${baseUrl}/api/insights/trends`,
       {
         method: 'GET',
@@ -32,37 +36,56 @@ router.get('/trends', async (req, res) => {
           Accept: 'application/json',
           'X-API-Key': partnerApiKey,
         },
+      },
+      {
+        timeoutMs: 1500,
+        retries: 2,
+        delayMs: 200,
       }
     );
 
     if (!response.ok) {
-      console.error(
-        `Partner trends request failed with status ${response.status}.`
-      );
-
-      return res.status(502).json({
-        message: 'Product trends are temporarily unavailable.',
-      });
+      throw new Error(`Partner returned status ${response.status}`);
     }
 
     const trends = await response.json();
 
     if (!Array.isArray(trends)) {
-      console.error('Partner trends returned an unexpected response format.');
-      return res.status(502).json({
-        message: 'Product trends are temporarily unavailable.',
-      });
+      throw new Error('Partner returned an unexpected response format.');
     }
 
-    return res.status(200).json({ trends });
+    // Save the latest successful response.
+    lastGood = {
+      data: trends,
+      asOf: new Date().toISOString(),
+    };
+
+    return res.status(200).json({
+      trends,
+      stale: false,
+      asOf: lastGood.asOf,
+    });
+
   } catch (error) {
     console.error(
       'Partner trends request failed:',
       error.cause?.code || error.message
     );
 
+    // Return saved data if available.
+    if (lastGood) {
+      console.warn('Returning previously saved partner trends.');
+
+      return res.status(200).json({
+        trends: lastGood.data,
+        stale: true,
+        asOf: lastGood.asOf,
+      });
+    }
+
+    // No saved data is available.
     return res.status(502).json({
-      message: 'Product trends are temporarily unavailable. Please try again later.',
+      message: 'Product trends are temporarily unavailable.',
     });
   }
 });
