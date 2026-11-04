@@ -23,7 +23,8 @@ function requireApiKey(req, res, next) {
     });
   }
 
-  next();
+  req.apiKey = providedKey;
+next();
 }
 
 module.exports = requireApiKey;

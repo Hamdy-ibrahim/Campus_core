@@ -14,6 +14,8 @@ CampusCore is a web-based university platform that brings student services and c
 - [Testing the API](#testing-the-api)
 - [Integration Notes for Team 7](#integration-notes-for-team-7)
 - [Troubleshooting](#troubleshooting)
+- [API Security — Week 9](#api-security--week-9)
+- [API Monitoring — Week 12](#api-monitoring--week-12)
 - [Project Status](#project-status)
 
 ## Project Overview
@@ -123,6 +125,7 @@ The backend exposes the following route groups.
 | GET | `/marketplace` | Provides marketplace data for integration |
 | GET | `/fitcoach-users/{fitcoach_userId}/profile` | Retrieves the mapped CampusCore user profile |
 | POST | `/fitcoach-users/{fitcoach_userId}/fitcoach-bindings` | Creates a FitCoach user binding |
+| GET | `/stats` | Provides protected API monitoring statistics |
 
 Replace `{fitcoach_userId}` with the relevant identifier. Consult the project's OpenAPI contract for exact request fields, response schemas, status codes, and any additional constraints.
 
@@ -258,7 +261,7 @@ No API key is currently configured for the Team 5 trends request in the CampusCo
 
 ### Authentication
 
-CampusCore protects its application and integration endpoints using API-key authentication. Send the key in the `X-API-Key` request header.
+The FitCoach integration endpoints and protected monitoring endpoint use API-key authentication. Send the key in the `X-API-Key` request header. Public CampusCore application routes and Team 5 partner routes have their own route configurations.
 
 Example request:
 
@@ -311,6 +314,143 @@ Configure the database and required environment variables before starting the se
 
 The rate limiter uses in-memory state and resets when the server restarts. API-key authentication alone does not provide user-specific authorization.
 
+## API Monitoring — Week 12
+
+CampusCore uses monitoring middleware to record API requests, response statuses and response times.
+
+### Request logging
+
+The monitoring middleware is implemented in `server/server/monitoring.js`.
+
+For each completed request, it records:
+
+- Request timestamp.
+- HTTP method.
+- Request path without query parameters.
+- HTTP response status.
+- Response time in milliseconds.
+- Caller fingerprint.
+
+The middleware runs before authentication and rate limiting so that rejected requests, including HTTP 401 and HTTP 429 responses, are also recorded.
+
+API keys are not written directly to the logs. Successful authenticated requests use a shortened SHA-256 fingerprint instead.
+
+### Monitoring statistics endpoint
+
+The backend provides a protected endpoint:
+
+**Request**
+
+```http
+GET /stats
+```
+
+Send a valid `X-API-Key` header to access it.
+
+The endpoint returns:
+
+- Total number of requests.
+- Number of client errors (4xx).
+- Number of server errors (5xx).
+- Server error rate as a percentage.
+- Average response time.
+- Per-route request counts, average response times and maximum response times.
+
+### Traffic generation results
+
+The monitoring implementation was tested using `traffic.js` and PowerShell.
+
+The traffic generator sent 60 requests and recorded:
+
+| HTTP status | Requests | Percentage |
+|---|---:|---:|
+| 200 OK | 27 | 45.0% |
+| 401 Unauthorized | 23 | 38.3% |
+| 404 Not Found | 10 | 16.7% |
+| **Total** | **60** | **100%** |
+
+The 401 responses came from requests with missing or invalid API keys. The 404 responses came from requests to a deliberately nonexistent endpoint.
+
+### Measured monitoring statistics
+
+The `/stats` endpoint reported the following results after the traffic test:
+
+| Metric | Measured result |
+|---|---:|
+| Total requests | 67 |
+| Client errors | 35 |
+| Server errors | 0 |
+| Server error rate | 0% |
+| Average response time | 5.3 ms |
+
+The statistics include earlier testing requests and monitoring endpoint requests in addition to the generated traffic.
+
+### Route statistics
+
+| Route | Requests | Average response time | Maximum response time |
+|---|---:|---:|---:|
+| GET / | 1 | 9.7 ms | 9.7 ms |
+| GET /events/ | 28 | 10.4 ms | 158.4 ms |
+| GET (no route) | 35 | 1.5 ms | 3.4 ms |
+| GET /stats | 3 | 2.1 ms | 2.3 ms |
+
+One request to the events route reached a maximum response time of 158.4 ms. This could be investigated if similar delays occur repeatedly.
+
+### Rate-limiting verification
+
+The rate limit was temporarily reduced to five requests per minute for a local test.
+
+Six requests were sent without an API key:
+
+| Request | Response |
+|---|---:|
+| 1 | 401 Unauthorized |
+| 2 | 401 Unauthorized |
+| 3 | 401 Unauthorized |
+| 4 | 401 Unauthorized |
+| 5 | 401 Unauthorized |
+| 6 | 429 Too Many Requests |
+
+The monitoring log also recorded the sixth request:
+
+```json
+{
+  "method": "GET",
+  "path": "/events",
+  "status": 429,
+  "ms": 2,
+  "caller": "none"
+}
+```
+
+This confirmed that the rate limiter blocks requests after the configured limit is reached and that the monitoring middleware records the 429 response.
+
+The normal rate limit was restored to 100 requests per minute after testing.
+
+### Production monitoring recommendation
+
+A recommended production alert threshold is a server error rate above 5% for five consecutive minutes.
+
+When this threshold is reached, the development team should investigate:
+
+- Database connection problems.
+- Partner API availability.
+- Backend exceptions.
+- Slow API responses.
+
+The team should also check whether the Week 11 partner API retry and fallback mechanisms are working correctly.
+
+### Monitoring limitations
+
+The monitoring statistics are stored in memory and reset when the backend restarts. A production deployment would benefit from persistent monitoring and centralized log storage.
+
+See `MONITORING_NOTES.md` for the detailed testing observations and results.
+
+## Project Status
+
+CampusCore includes a React frontend, Express backend, MySQL database integration, external API integrations, API-key authentication, rate limiting and request monitoring.
+
+The project continues to be developed and tested as part of the university API integration coursework.
 
 ## License
 
