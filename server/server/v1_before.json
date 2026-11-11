@@ -1,0 +1,28 @@
+﻿{
+    "events":  [
+                   {
+                       "event_id":  "9af0fce5-bb61-11f1-8401-0a0027000010",
+                       "title":  "Football ",
+                       "description":  null,
+                       "location":  "Sports Complex",
+                       "start_time":  "2026-08-19T00:00:00Z",
+                       "end_time":  null
+                   },
+                   {
+                       "event_id":  "9af0ea0a-bb61-11f1-8401-0a0027000010",
+                       "title":  "Tech Workshop",
+                       "description":  null,
+                       "location":  "ICT Lab",
+                       "start_time":  "2026-09-29T00:00:00Z",
+                       "end_time":  null
+                   },
+                   {
+                       "event_id":  "9af0037b-bb61-11f1-8401-0a0027000010",
+                       "title":  "Hackathon 2026",
+                       "description":  "A campus hackathon where students build innovative technology solutions.",
+                       "location":  "ICT Lab",
+                       "start_time":  "2026-07-19T09:00:00Z",
+                       "end_time":  null
+                   }
+               ]
+}

@@ -4,32 +4,43 @@ const router = express.Router();
 
 const { fetchWithRetry } = require('./resilientFetch');
 
-// Store the most recent successful trends response in memory.
 let lastGood = null;
+
+// Select the partner API configuration.
+function getPartnerConfig() {
+  const version = process.env.PARTNER_VERSION || 'v1';
+
+  if (version === 'v1') {
+    return {
+      url: '/api/insights/trends',
+      parse: (body) => {
+        if (!Array.isArray(body)) {
+          throw new Error('Invalid v1 trends response.');
+        }
+        return body;
+      },
+    };
+  }
+
+  throw new Error(`Unsupported partner API version: ${version}`);
+}
 
 router.get('/trends', async (req, res) => {
   const partnerUrl = process.env.PARTNER_URL;
   const partnerApiKey = process.env.PARTNER_API_KEY;
 
-  if (!partnerUrl) {
-    console.error('Partner integration error: PARTNER_URL is missing.');
+  if (!partnerUrl || !partnerApiKey) {
     return res.status(500).json({
-      message: 'Product trends are temporarily unavailable.',
-    });
-  }
-
-  if (!partnerApiKey) {
-    console.error('Partner integration error: PARTNER_API_KEY is missing.');
-    return res.status(500).json({
-      message: 'Partner API key is not configured.',
+      message: 'Partner configuration is missing.',
     });
   }
 
   try {
+    const config = getPartnerConfig();
     const baseUrl = partnerUrl.replace(/\/+$/, '');
 
     const response = await fetchWithRetry(
-      `${baseUrl}/api/insights/trends`,
+      `${baseUrl}${config.url}`,
       {
         method: 'GET',
         headers: {
@@ -48,13 +59,9 @@ router.get('/trends', async (req, res) => {
       throw new Error(`Partner returned status ${response.status}`);
     }
 
-    const trends = await response.json();
+    const body = await response.json();
+    const trends = config.parse(body);
 
-    if (!Array.isArray(trends)) {
-      throw new Error('Partner returned an unexpected response format.');
-    }
-
-    // Save the latest successful response.
     lastGood = {
       data: trends,
       asOf: new Date().toISOString(),
@@ -67,15 +74,9 @@ router.get('/trends', async (req, res) => {
     });
 
   } catch (error) {
-    console.error(
-      'Partner trends request failed:',
-      error.cause?.code || error.message
-    );
+    console.error('Partner trends error:', error.message);
 
-    // Return saved data if available.
     if (lastGood) {
-      console.warn('Returning previously saved partner trends.');
-
       return res.status(200).json({
         trends: lastGood.data,
         stale: true,
@@ -83,7 +84,6 @@ router.get('/trends', async (req, res) => {
       });
     }
 
-    // No saved data is available.
     return res.status(502).json({
       message: 'Product trends are temporarily unavailable.',
     });

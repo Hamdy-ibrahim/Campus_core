@@ -73,3 +73,43 @@ Team 5 provided an updated deployed API URL. The new endpoints were tested using
 - [x] Create and verify `.env.example`.
 - [x] Commit and push the changes to GitHub.
 - [x] Rehearse the live-data, partner-unavailable and recovery demonstration.
+
+## 8. Week 13: API Versioning and Partner Migration
+
+### Partner Version Configuration
+
+A `PARTNER_VERSION` environment variable was introduced and set to `v1`.
+
+The following integration files were updated:
+
+- `integration/partnerTrends.js`
+- `integration/partnerProducts.js`
+
+Both integrations now use version-specific configuration to select the existing v1 endpoint and validate the returned response format.
+
+### Upstream Deprecation Notice
+
+At the time of this implementation, Team 5 had not provided an official API v2 specification or deprecation notice.
+
+CampusCore therefore continues to use the known v1 contract. A v2 endpoint and response parser will be implemented after Team 5 provides its official documentation.
+
+### Testing
+
+The full CampusCore backend test suite was executed:
+
+Command: `npm test -- --runInBand`
+
+Results:
+- Test suites passed: 9
+- Tests passed: 17
+- Tests failed: 0
+
+The version compatibility tests confirmed that the existing v1 response structure remains unchanged and the new v2 events endpoint returns its expected `data` and `count` structure.
+
+### Remaining Actions
+
+1. Obtain Team 5's official v2 API specification.
+2. Confirm the new endpoint paths and response formats.
+3. Implement and test the v2 partner integration.
+4. Verify partner authentication requirements.
+5. Update the partner version configuration after successful migration.

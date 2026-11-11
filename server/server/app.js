@@ -43,30 +43,38 @@ app.use('/api/marketplace', marketplaceRoutes);
 const maintenanceRoutes = require('./routes/maintenance');
 app.use('/api/maintenance', maintenanceRoutes);
 
-// Team 5 trends routes
+// Team 5: Billing System integration
 app.use('/api/partner', apiRateLimiter, require('./integration/partnerTrends'));
 app.use('/api/partner', apiRateLimiter, require('./integration/partnerProducts'));
 
-// Team 7 / FitCoach integration routes
-// These routes remain rate-limited and API-key protected.
+// Team 7: FitCoach integration
+// Apply rate limiting and API-key authentication.
 app.use(apiRateLimiter);
 app.use(requireApiKey);
 
 // Week 12: Protected monitoring statistics endpoint
 app.get('/stats', statsHandler);
 
+// Week 13: Versioned FitCoach API routes
+const v1Routes = require('./integration/versioning/v1');
+const v2Routes = require('./integration/versioning/v2');
+
+const deprecationMiddleware = require('./middleware/deprecation');
+
+app.use('/v1', deprecationMiddleware, v1Routes);
+app.use('/v2', v2Routes);
+
+// Original unversioned routes (backward compatibility)
 const integrationEventRoutes = require('./integration/events');
 app.use('/events', integrationEventRoutes);
 
 const integrationClubRoutes = require('./integration/clubs');
 app.use('/clubs', integrationClubRoutes);
 
-const integrationAnnouncementRoutes =
-  require('./integration/announcements');
+const integrationAnnouncementRoutes = require('./integration/announcements');
 app.use('/announcements', integrationAnnouncementRoutes);
 
-const integrationMarketplaceRoutes =
-  require('./integration/marketplace');
+const integrationMarketplaceRoutes = require('./integration/marketplace');
 app.use('/marketplace', integrationMarketplaceRoutes);
 
 const profileRoutes = require('./integration/profile');
